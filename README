@@ -28,6 +28,9 @@ La aerolínea SkyBalance necesita:
 ```
 SkyBalance-AVL/
 ├── app.py                  # Punto de entrada principal
+├── data/                   # Archivos JSON de ejemplo
+│   ├── ModoInsercion.json  # Ejemplo: carga por inserción
+│   └── ModoTopologia.json  # Ejemplo: carga por topología
 ├── core/                   # Lógica central del sistema
 │   ├── avl.py              # Implementación del Árbol AVL
 │   ├── bst.py              # Implementación del Árbol BST (comparación)
@@ -56,102 +59,6 @@ SkyBalance-AVL/
     └── test_rules.py
 ```
 
----
-
-## Requisitos Previos
-
-### Instalación de Python
-
-1. Descargar Python 3.8+ desde [python.org](https://www.python.org/downloads/)
-2. Durante la instalación, marcar **"Add Python to PATH"**
-
-### Dependencias
-
-```bash
-pip install tkinter    # Interfaz gráfica (viene con Python)
-pip install graphviz   # Visualización de árboles (opcional)
-```
-
----
-
-## Plan de Implementación (Paso a Paso)
-
-### Fase 1: Modelos y Estructuras Base
-
-- [ ] **1.1** Crear modelo `Vuelo` en `core/models.py` con atributos:
-  - código, origen, destino, precio_base, precio_final
-  - pasajeros, promociones, alertas, prioridad
-- [ ] **1.2** Crear clase `NodoAVL` con: valor, izquierda, derecha, altura, factor_equilibrio
-- [ ] **1.3** Crear clase `NodoBST` similar pero sin factor de equilibrio
-
-### Fase 2: Árbol AVL (core/avl.py)
-
-- [ ] **2.1** Implementar inserción básica
-- [ ] **2.2** Implementar cálculo de altura y factor de equilibrio
-- [ ] **2.3** Implementar rotaciones:
-  - Rotación simple derecha (LL)
-  - Rotación simple izquierda (RR)
-  - Rotación doble izquierda-derecha (LR)
-  - Rotación doble derecha-izquierda (RL)
-- [ ] **2.4** Implementar eliminación con rebalanceo
-- [ ] **2.5** Implementar eliminación en cascada (cancelación de vuelo)
-
-### Fase 3: Árbol BST (core/bst.py)
-
-- [ ] **3.1** Implementar inserción sin balanceo
-- [ ] **3.2** Implementar eliminación simple
-- [ ] **3.3** Implementar recorridos (inorden, preorden, postorden)
-
-### Fase 4: Recorridos y Métricas (core/metrics.py)
-
-- [ ] **4.1** Recorrido en profundidad (DFS): preorden, inorden, postorden
-- [ ] **4.2** Recorrido en anchura (BFS) usando cola
-- [ ] **4.3** Calcular: raíz, profundidad, cantidad de hojas
-
-### Fase 5: Persistencia JSON (services/)
-
-- [ ] **5.1** Cargar árbol desde JSON por **topología** (respetando padre-hijo)
-- [ ] **5.2** Cargar árbol desde JSON por **inserción** (uno a uno con balanceo)
-- [ ] **5.3** Exportar árbol completo a JSON con toda la información:
-  - Estructura jerárquica, alturas, factores de equilibrio
-  - Precios, pasajeros, promociones, alertas, prioridades
-
-### Fase 6: Sistema de Deshacer (services/undo_manager.py)
-
-- [ ] **6.1** Implementar pila de estados
-- [ ] **6.2** Guardar estado antes de cada modificación
-- [ ] **6.3** Restaurar estado anterior (Ctrl+Z)
-
-### Fase 7: Versionado (services/version_manager.py)
-
-- [ ] **7.1** Guardar versión con nombre personalizado
-- [ ] **7.2** Listar versiones guardadas
-- [ ] **7.3** Restaurar versión específica
-
-### Fase 8: Interfaz Gráfica (ui/)
-
-- [ ] **8.1** Ventana principal con visualización del árbol AVL
-- [ ] **8.2** Botón para seleccionar archivo JSON (navegador de archivos)
-- [ ] **8.3** Formularios para crear/modificar/eliminar vuelos
-- [ ] **8.4** Botón de cancelación de vuelo (elimina nodo + descendientes)
-- [ ] **8.5** Botón deshacer (Ctrl+Z)
-- [ ] **8.6** Ventana comparativa AVL vs BST
-- [ ] **8.7** Panel de métricas
-
-### Fase 9: Validación y Auditoría (core/auditor.py)
-
-- [ ] **9.1** Validar propiedad AVL (|factor_equilibrio| <= 1)
-- [ ] **9.2** Verificar coherencia de alturas
-- [ ] **9.3** Generar reportes de validación
-
-### Fase 10: Sistema Económico (core/economics.py)
-
-- [ ] **10.1** Calcular precio final basado en posición en el árbol
-- [ ] **10.2** Aplicar promociones según nivel/profundidad
-- [ ] **10.3** Ajustar prioridades por rotaciones
-
----
-
 ## Cómo Ejecutar
 
 ```bash
@@ -166,44 +73,73 @@ python app.py
 
 ## Formato JSON Esperado
 
-### Modo Topología
+El sistema soporta dos modos de carga. Los archivos de ejemplo están en la carpeta `data/`.
+
+### Modo Inserción (`data/ModoInsercion.json`)
+
+Inserta vuelos uno a uno en el AVL (con balanceo) y en el BST (sin balanceo).
 
 ```json
 {
-  "tipo": "topologia",
-  "raiz": {
-    "vuelo": {
-      "codigo": "SKY001",
-      "origen": "Bogotá",
-      "destino": "Medellín",
-      "precio_base": 150000,
-      "pasajeros": 120
-    },
-    "izquierda": { ... },
-    "derecha": { ... }
-  }
-}
-```
-
-### Modo Inserción
-
-```json
-{
-  "tipo": "insercion",
+  "tipo": "INSERCION",
+  "ordenamiento": "codigo",
   "vuelos": [
-    {"codigo": "SKY001", "origen": "Bogotá", "destino": "Medellín", "precio_base": 150000},
-    {"codigo": "SKY002", "origen": "Cali", "destino": "Cartagena", "precio_base": 180000},
-    ...
+    {
+      "codigo": "SB400",
+      "origen": "Medellin",
+      "destino": "Cartagena",
+      "horaSalida": "10:00",
+      "precioBase": 400,
+      "pasajeros": 120,
+      "prioridad": 2,
+      "promocion": false,
+      "alerta": false
+    }
   ]
 }
 ```
 
----
+| Campo        | Tipo    | Descripción                                           |
+| ------------ | ------- | ----------------------------------------------------- |
+| `codigo`     | string  | Identificador único del vuelo (clave de ordenamiento) |
+| `origen`     | string  | Ciudad de origen                                      |
+| `destino`    | string  | Ciudad de destino                                     |
+| `horaSalida` | string  | Hora de salida (HH:MM)                                |
+| `precioBase` | number  | Precio base del vuelo                                 |
+| `pasajeros`  | number  | Cantidad de pasajeros                                 |
+| `prioridad`  | number  | Nivel de prioridad (1-3)                              |
+| `promocion`  | boolean | Si tiene promoción activa                             |
+| `alerta`     | boolean | Si tiene alerta activa                                |
 
-## Autores
+### Modo Topología (`data/ModoTopologia.json`)
 
-- [Tu nombre aquí]
+Reconstruye el árbol respetando la estructura padre-hijo exacta del JSON.
 
-## Licencia
+```json
+{
+  "tipo": "TOPOLOGIA",
+  "raiz": {
+    "codigo": 500,
+    "origen": "Medellin",
+    "destino": "Cartagena",
+    "horaSalida": "10:00",
+    "precioBase": 400,
+    "precioFinal": 400,
+    "pasajeros": 120,
+    "promocion": false,
+    "alerta": false,
+    "altura": 5,
+    "factorEquilibrio": 0,
+    "izquierdo": { ... },
+    "derecho": { ... }
+  }
+}
+```
 
-Proyecto académico - Estructuras de Datos
+| Campo adicional    | Tipo        | Descripción                               |
+| ------------------ | ----------- | ----------------------------------------- |
+| `precioFinal`      | number      | Precio calculado (puede diferir del base) |
+| `altura`           | number      | Altura del nodo en el árbol               |
+| `factorEquilibrio` | number      | Factor de equilibrio AVL (-1, 0, 1)       |
+| `izquierdo`        | object/null | Subárbol izquierdo                        |
+| `derecho`          | object/null | Subárbol derecho                          |
