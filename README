@@ -1,0 +1,145 @@
+# SkyBalance AVL - Sistema de Gestión Aérea ✈️
+
+## Descripción del Proyecto
+
+**SkyBalance AVL** es un sistema de gestión aérea diseñado para administrar cientos de vuelos activos en tiempo real. El sistema utiliza un **Árbol AVL** como estructura de datos principal, garantizando que las operaciones de búsqueda, inserción y eliminación mantengan una eficiencia óptima O(log n).
+
+### Problema que Resuelve
+
+La aerolínea SkyBalance necesita:
+
+- Gestionar vuelos sin perder eficiencia en búsquedas, inserciones o cancelaciones
+- Mantener balance estructural para evitar decisiones tardías y sobrecostos
+- Garantizar consistencia en las conexiones entre ciudades
+
+### Características Principales
+
+- **Árbol AVL con balanceo automático**: Cada inserción/eliminación mantiene el árbol equilibrado
+- **Sistema dinámico de precios**: La posición de cada nodo afecta precios, promociones y prioridades
+- **Comparación AVL vs BST**: Visualización paralela para demostrar la ventaja del balanceo
+- **Historial con deshacer (Ctrl+Z)**: Pila de estados para retroceder acciones
+- **Versionado persistente**: Guardar y restaurar versiones nombradas del árbol
+- **Visualización en tiempo real**: Interfaz gráfica para gestionar vuelos
+
+---
+
+## Estructura del Proyecto
+
+```
+SkyBalance-AVL/
+├── app.py                  # Punto de entrada principal
+├── data/                   # Archivos JSON de ejemplo
+│   ├── ModoInsercion.json  # Ejemplo: carga por inserción
+│   └── ModoTopologia.json  # Ejemplo: carga por topología
+├── core/                   # Lógica central del sistema
+│   ├── avl.py              # Implementación del Árbol AVL
+│   ├── bst.py              # Implementación del Árbol BST (comparación)
+│   ├── models.py           # Modelos de datos (Vuelo, Nodo)
+│   ├── metrics.py          # Métricas del árbol (altura, hojas, etc.)
+│   ├── economics.py        # Cálculos de precios y promociones
+│   └── auditor.py          # Validación de propiedades AVL
+├── services/               # Servicios auxiliares
+│   ├── json_loader.py      # Carga de archivos JSON
+│   ├── serializer.py       # Exportación a JSON
+│   ├── queue_manager.py    # Gestión de colas (recorrido por anchura)
+│   ├── undo_manager.py     # Sistema de deshacer (pila)
+│   ├── version_manager.py  # Versionado de estados
+│   └── tree_renderer_data.py # Datos para renderizado
+├── ui/                     # Interfaz gráfica
+│   ├── main_view.py        # Vista principal
+│   ├── tree_view.py        # Visualización del árbol
+│   ├── forms.py            # Formularios de entrada
+│   ├── dialogs.py          # Diálogos del sistema
+│   ├── compare_view.py     # Vista comparativa AVL vs BST
+│   └── metrics_panel.py    # Panel de métricas
+└── tests/                  # Pruebas unitarias
+    ├── test_avl.py
+    ├── test_bst.py
+    ├── test_loader.py
+    └── test_rules.py
+```
+
+## Cómo Ejecutar
+
+```bash
+# Clonar o descargar el proyecto
+cd Proyect-data-structures
+
+# Ejecutar la aplicación
+python app.py
+```
+
+---
+
+## Formato JSON Esperado
+
+El sistema soporta dos modos de carga. Los archivos de ejemplo están en la carpeta `data/`.
+
+### Modo Inserción (`data/ModoInsercion.json`)
+
+Inserta vuelos uno a uno en el AVL (con balanceo) y en el BST (sin balanceo).
+
+```json
+{
+  "tipo": "INSERCION",
+  "ordenamiento": "codigo",
+  "vuelos": [
+    {
+      "codigo": "SB400",
+      "origen": "Medellin",
+      "destino": "Cartagena",
+      "horaSalida": "10:00",
+      "precioBase": 400,
+      "pasajeros": 120,
+      "prioridad": 2,
+      "promocion": false,
+      "alerta": false
+    }
+  ]
+}
+```
+
+| Campo        | Tipo    | Descripción                                           |
+| ------------ | ------- | ----------------------------------------------------- |
+| `codigo`     | string  | Identificador único del vuelo (clave de ordenamiento) |
+| `origen`     | string  | Ciudad de origen                                      |
+| `destino`    | string  | Ciudad de destino                                     |
+| `horaSalida` | string  | Hora de salida (HH:MM)                                |
+| `precioBase` | number  | Precio base del vuelo                                 |
+| `pasajeros`  | number  | Cantidad de pasajeros                                 |
+| `prioridad`  | number  | Nivel de prioridad (1-3)                              |
+| `promocion`  | boolean | Si tiene promoción activa                             |
+| `alerta`     | boolean | Si tiene alerta activa                                |
+
+### Modo Topología (`data/ModoTopologia.json`)
+
+Reconstruye el árbol respetando la estructura padre-hijo exacta del JSON.
+
+```json
+{
+  "tipo": "TOPOLOGIA",
+  "raiz": {
+    "codigo": 500,
+    "origen": "Medellin",
+    "destino": "Cartagena",
+    "horaSalida": "10:00",
+    "precioBase": 400,
+    "precioFinal": 400,
+    "pasajeros": 120,
+    "promocion": false,
+    "alerta": false,
+    "altura": 5,
+    "factorEquilibrio": 0,
+    "izquierdo": { ... },
+    "derecho": { ... }
+  }
+}
+```
+
+| Campo adicional    | Tipo        | Descripción                               |
+| ------------------ | ----------- | ----------------------------------------- |
+| `precioFinal`      | number      | Precio calculado (puede diferir del base) |
+| `altura`           | number      | Altura del nodo en el árbol               |
+| `factorEquilibrio` | number      | Factor de equilibrio AVL (-1, 0, 1)       |
+| `izquierdo`        | object/null | Subárbol izquierdo                        |
+| `derecho`          | object/null | Subárbol derecho                          |
