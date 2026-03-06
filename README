@@ -1,0 +1,209 @@
+# SkyBalance AVL - Sistema de Gestión Aérea ✈️
+
+## Descripción del Proyecto
+
+**SkyBalance AVL** es un sistema de gestión aérea diseñado para administrar cientos de vuelos activos en tiempo real. El sistema utiliza un **Árbol AVL** como estructura de datos principal, garantizando que las operaciones de búsqueda, inserción y eliminación mantengan una eficiencia óptima O(log n).
+
+### Problema que Resuelve
+
+La aerolínea SkyBalance necesita:
+
+- Gestionar vuelos sin perder eficiencia en búsquedas, inserciones o cancelaciones
+- Mantener balance estructural para evitar decisiones tardías y sobrecostos
+- Garantizar consistencia en las conexiones entre ciudades
+
+### Características Principales
+
+- **Árbol AVL con balanceo automático**: Cada inserción/eliminación mantiene el árbol equilibrado
+- **Sistema dinámico de precios**: La posición de cada nodo afecta precios, promociones y prioridades
+- **Comparación AVL vs BST**: Visualización paralela para demostrar la ventaja del balanceo
+- **Historial con deshacer (Ctrl+Z)**: Pila de estados para retroceder acciones
+- **Versionado persistente**: Guardar y restaurar versiones nombradas del árbol
+- **Visualización en tiempo real**: Interfaz gráfica para gestionar vuelos
+
+---
+
+## Estructura del Proyecto
+
+```
+SkyBalance-AVL/
+├── app.py                  # Punto de entrada principal
+├── core/                   # Lógica central del sistema
+│   ├── avl.py              # Implementación del Árbol AVL
+│   ├── bst.py              # Implementación del Árbol BST (comparación)
+│   ├── models.py           # Modelos de datos (Vuelo, Nodo)
+│   ├── metrics.py          # Métricas del árbol (altura, hojas, etc.)
+│   ├── economics.py        # Cálculos de precios y promociones
+│   └── auditor.py          # Validación de propiedades AVL
+├── services/               # Servicios auxiliares
+│   ├── json_loader.py      # Carga de archivos JSON
+│   ├── serializer.py       # Exportación a JSON
+│   ├── queue_manager.py    # Gestión de colas (recorrido por anchura)
+│   ├── undo_manager.py     # Sistema de deshacer (pila)
+│   ├── version_manager.py  # Versionado de estados
+│   └── tree_renderer_data.py # Datos para renderizado
+├── ui/                     # Interfaz gráfica
+│   ├── main_view.py        # Vista principal
+│   ├── tree_view.py        # Visualización del árbol
+│   ├── forms.py            # Formularios de entrada
+│   ├── dialogs.py          # Diálogos del sistema
+│   ├── compare_view.py     # Vista comparativa AVL vs BST
+│   └── metrics_panel.py    # Panel de métricas
+└── tests/                  # Pruebas unitarias
+    ├── test_avl.py
+    ├── test_bst.py
+    ├── test_loader.py
+    └── test_rules.py
+```
+
+---
+
+## Requisitos Previos
+
+### Instalación de Python
+
+1. Descargar Python 3.8+ desde [python.org](https://www.python.org/downloads/)
+2. Durante la instalación, marcar **"Add Python to PATH"**
+
+### Dependencias
+
+```bash
+pip install tkinter    # Interfaz gráfica (viene con Python)
+pip install graphviz   # Visualización de árboles (opcional)
+```
+
+---
+
+## Plan de Implementación (Paso a Paso)
+
+### Fase 1: Modelos y Estructuras Base
+
+- [ ] **1.1** Crear modelo `Vuelo` en `core/models.py` con atributos:
+  - código, origen, destino, precio_base, precio_final
+  - pasajeros, promociones, alertas, prioridad
+- [ ] **1.2** Crear clase `NodoAVL` con: valor, izquierda, derecha, altura, factor_equilibrio
+- [ ] **1.3** Crear clase `NodoBST` similar pero sin factor de equilibrio
+
+### Fase 2: Árbol AVL (core/avl.py)
+
+- [ ] **2.1** Implementar inserción básica
+- [ ] **2.2** Implementar cálculo de altura y factor de equilibrio
+- [ ] **2.3** Implementar rotaciones:
+  - Rotación simple derecha (LL)
+  - Rotación simple izquierda (RR)
+  - Rotación doble izquierda-derecha (LR)
+  - Rotación doble derecha-izquierda (RL)
+- [ ] **2.4** Implementar eliminación con rebalanceo
+- [ ] **2.5** Implementar eliminación en cascada (cancelación de vuelo)
+
+### Fase 3: Árbol BST (core/bst.py)
+
+- [ ] **3.1** Implementar inserción sin balanceo
+- [ ] **3.2** Implementar eliminación simple
+- [ ] **3.3** Implementar recorridos (inorden, preorden, postorden)
+
+### Fase 4: Recorridos y Métricas (core/metrics.py)
+
+- [ ] **4.1** Recorrido en profundidad (DFS): preorden, inorden, postorden
+- [ ] **4.2** Recorrido en anchura (BFS) usando cola
+- [ ] **4.3** Calcular: raíz, profundidad, cantidad de hojas
+
+### Fase 5: Persistencia JSON (services/)
+
+- [ ] **5.1** Cargar árbol desde JSON por **topología** (respetando padre-hijo)
+- [ ] **5.2** Cargar árbol desde JSON por **inserción** (uno a uno con balanceo)
+- [ ] **5.3** Exportar árbol completo a JSON con toda la información:
+  - Estructura jerárquica, alturas, factores de equilibrio
+  - Precios, pasajeros, promociones, alertas, prioridades
+
+### Fase 6: Sistema de Deshacer (services/undo_manager.py)
+
+- [ ] **6.1** Implementar pila de estados
+- [ ] **6.2** Guardar estado antes de cada modificación
+- [ ] **6.3** Restaurar estado anterior (Ctrl+Z)
+
+### Fase 7: Versionado (services/version_manager.py)
+
+- [ ] **7.1** Guardar versión con nombre personalizado
+- [ ] **7.2** Listar versiones guardadas
+- [ ] **7.3** Restaurar versión específica
+
+### Fase 8: Interfaz Gráfica (ui/)
+
+- [ ] **8.1** Ventana principal con visualización del árbol AVL
+- [ ] **8.2** Botón para seleccionar archivo JSON (navegador de archivos)
+- [ ] **8.3** Formularios para crear/modificar/eliminar vuelos
+- [ ] **8.4** Botón de cancelación de vuelo (elimina nodo + descendientes)
+- [ ] **8.5** Botón deshacer (Ctrl+Z)
+- [ ] **8.6** Ventana comparativa AVL vs BST
+- [ ] **8.7** Panel de métricas
+
+### Fase 9: Validación y Auditoría (core/auditor.py)
+
+- [ ] **9.1** Validar propiedad AVL (|factor_equilibrio| <= 1)
+- [ ] **9.2** Verificar coherencia de alturas
+- [ ] **9.3** Generar reportes de validación
+
+### Fase 10: Sistema Económico (core/economics.py)
+
+- [ ] **10.1** Calcular precio final basado en posición en el árbol
+- [ ] **10.2** Aplicar promociones según nivel/profundidad
+- [ ] **10.3** Ajustar prioridades por rotaciones
+
+---
+
+## Cómo Ejecutar
+
+```bash
+# Clonar o descargar el proyecto
+cd Proyect-data-structures
+
+# Ejecutar la aplicación
+python app.py
+```
+
+---
+
+## Formato JSON Esperado
+
+### Modo Topología
+
+```json
+{
+  "tipo": "topologia",
+  "raiz": {
+    "vuelo": {
+      "codigo": "SKY001",
+      "origen": "Bogotá",
+      "destino": "Medellín",
+      "precio_base": 150000,
+      "pasajeros": 120
+    },
+    "izquierda": { ... },
+    "derecha": { ... }
+  }
+}
+```
+
+### Modo Inserción
+
+```json
+{
+  "tipo": "insercion",
+  "vuelos": [
+    {"codigo": "SKY001", "origen": "Bogotá", "destino": "Medellín", "precio_base": 150000},
+    {"codigo": "SKY002", "origen": "Cali", "destino": "Cartagena", "precio_base": 180000},
+    ...
+  ]
+}
+```
+
+---
+
+## Autores
+
+- [Tu nombre aquí]
+
+## Licencia
+
+Proyecto académico - Estructuras de Datos
