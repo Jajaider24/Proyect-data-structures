@@ -59,7 +59,51 @@ class BST:
     # -------------------------------------------------------------------------
     # Inserción
     # -------------------------------------------------------------------------
-    def insert(self, flight: FlightRecord) -> TreeNode:
+    def _build_placeholder_flight(self, value: Any) -> FlightRecord:
+        """
+        Construye un vuelo mínimo a partir de una clave.
+
+        Se usa para compatibilidad con inserciones de estilo académico
+        (nodos basados solo en valor).
+        """
+        return FlightRecord(
+            code_raw=value,
+            origin="",
+            destination="",
+            departure_time="",
+            base_price=0.0,
+            passengers=0,
+            priority="MEDIA",
+            promotion=0.0,
+            alert="NORMAL",
+        )
+
+    def _coerce_insert_input(self, value: Any) -> TreeNode:
+        """
+        Convierte distintos tipos de entrada en un TreeNode válido.
+
+        Entradas soportadas:
+        - FlightRecord
+        - TreeNode
+        - objetos con getValue() (compatibilidad con clase Node del profesor)
+        - valores escalares (int/str/float)
+        """
+        if isinstance(value, TreeNode):
+            node = value
+        elif isinstance(value, FlightRecord):
+            node = TreeNode(flight=value)
+        elif hasattr(value, "getValue"):
+            node = TreeNode(flight=self._build_placeholder_flight(value.getValue()))
+        else:
+            node = TreeNode(flight=self._build_placeholder_flight(value))
+
+        # Garantiza inserción limpia como nodo nuevo.
+        node.left = None
+        node.right = None
+        node.parent = None
+        return node
+
+    def insert(self, flight: Any) -> TreeNode:
         """
         Inserta un vuelo en el BST.
 
@@ -68,15 +112,15 @@ class BST:
 
         Parameters
         ----------
-        flight : FlightRecord
-            Vuelo a insertar.
+        flight : Any
+            Puede ser FlightRecord, TreeNode, Node (con getValue) o valor.
 
         Returns
         -------
         TreeNode
             Nodo creado e insertado.
         """
-        new_node = TreeNode(flight=flight)
+        new_node = self._coerce_insert_input(flight)
 
         if self.root is None:
             self.root = new_node
@@ -381,6 +425,34 @@ class BST:
                 queue.append(current.right)
 
         return result
+
+    # -------------------------------------------------------------------------
+    # API de compatibilidad con el estilo del profesor
+    # -------------------------------------------------------------------------
+    def getRoot(self) -> Optional[TreeNode]:
+        return self.root
+
+    def breadthFirstSearch(self) -> list[int]:
+        return [flight.code_num for flight in self.level_order()]
+
+    def preOrderTraversal(self) -> list[int]:
+        return [flight.code_num for flight in self.preorder()]
+
+    def inOrderTraversal(self) -> list[int]:
+        return [flight.code_num for flight in self.inorder()]
+
+    def posOrderTraversal(self) -> list[int]:
+        return [flight.code_num for flight in self.postorder()]
+
+    def calculateHeight(self, node: Optional[TreeNode]) -> int:
+        """
+        Altura con convención del código del profesor:
+        - None = -1
+        - hoja = 0
+        """
+        if node is None:
+            return -1
+        return 1 + max(self.calculateHeight(node.left), self.calculateHeight(node.right))
 
     # -------------------------------------------------------------------------
     # Métricas estructurales

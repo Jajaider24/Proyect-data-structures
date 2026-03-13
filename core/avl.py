@@ -331,7 +331,7 @@ class AVL(BST):
     # -------------------------------------------------------------------------
     # Inserción
     # -------------------------------------------------------------------------
-    def insert(self, flight: FlightRecord) -> TreeNode:
+    def insert(self, flight: Any) -> TreeNode:
         """
         Inserta un vuelo en el AVL.
 
@@ -343,7 +343,7 @@ class AVL(BST):
         - inserta como un BST,
         - NO rebalancea.
         """
-        new_node = TreeNode(flight=flight)
+        new_node = self._coerce_insert_input(flight)
 
         if self.root is None:
             self.root = new_node
@@ -648,6 +648,17 @@ class AVL(BST):
             "invalid_height_nodes": invalid_height_nodes,
             "issues": issues,
         }
+
+    # -------------------------------------------------------------------------
+    # API de compatibilidad con el estilo del profesor
+    # -------------------------------------------------------------------------
+    def getBalanceFactor(self, node: Optional[TreeNode]) -> int:
+        if node is None:
+            return 0
+        return self._balance_factor(node)
+
+    def print_tree(self) -> None:
+        self.pretty_print()
 
     # -------------------------------------------------------------------------
     # Construcción auxiliar
