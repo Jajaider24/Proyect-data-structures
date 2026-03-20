@@ -72,18 +72,6 @@ Proyect-data-structures/
    └── metrics_panel.py
 ```
 
-## Ejecutar API
-
-```bash
-cd Proyect-data-structures
-pip install -r requirements.txt
-uvicorn app:app --reload
-```
-
-Documentacion interactiva:
-
-- http://127.0.0.1:8000/docs
-
 ## Endpoints iniciales
 
 ### Vuelos
@@ -120,45 +108,8 @@ Documentacion interactiva:
 - POST /trees/export/insertion-file
 - POST /trees/undo
 
-## Plan de commits recomendados (paso a paso)
-
-Para que avances con commits pequenos y claros:
-
-1. Commit 1 - Servicios JSON base
-
-- services/json_loader.py
-- services/serializer.py
-
-2. Commit 2 - Historial y versionado
-
-- services/undo_manager.py
-- services/version_manager.py
-
-3. Commit 3 - Cola y datos de render
-
-- services/queue_manager.py
-- services/tree_renderer_data.py
-
-4. Commit 4 - Utilidades core de soporte
-
-- core/metrics.py
-- core/auditor.py
-- core/economics.py
-
-5. Commit 5 - API FastAPI inicial
-
-- app.py
-- api/
-
-6. Commit 6 - Documentacion y entorno
-
-- README
-- requirements.txt
-- .gitignore
-- .env.example
-
-## Notas de alcance de esta fase
-
-- Esta fase prioriza backend y persistencia para que el proyecto ya sea funcional.
-- La carpeta ui/ se conserva para fase visual posterior.
-- El siguiente paso recomendado es agregar pruebas para services/ y rutas API.
+### Correr el proyecto con la api hasta el momento
+1. cd C:\Desktop\Proyect-data-structures
+2. .\.venv\Scripts\Activate.ps1
+3. uvicorn app:app --reload
+4. Abrir en el navegador: http://127.0.0.1:8000/docs
