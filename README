@@ -1,145 +1,154 @@
-# SkyBalance AVL - Sistema de Gestión Aérea ✈️
+# SkyBalance AVL - Sistema de Gestion Aerea
 
-## Descripción del Proyecto
+## Objetivo
 
-**SkyBalance AVL** es un sistema de gestión aérea diseñado para administrar cientos de vuelos activos en tiempo real. El sistema utiliza un **Árbol AVL** como estructura de datos principal, garantizando que las operaciones de búsqueda, inserción y eliminación mantengan una eficiencia óptima O(log n).
+SkyBalance AVL administra vuelos con un arbol AVL como nucleo operativo. El proyecto mantiene comparacion paralela contra BST para evidenciar impacto de balanceo en altura, recorridos y eficiencia.
 
-### Problema que Resuelve
+## Regla importante del proyecto
 
-La aerolínea SkyBalance necesita:
+Los archivos del profesor no se modifican:
 
-- Gestionar vuelos sin perder eficiencia en búsquedas, inserciones o cancelaciones
-- Mantener balance estructural para evitar decisiones tardías y sobrecostos
-- Garantizar consistencia en las conexiones entre ciudades
+- data/ModoInsercion.json
+- data/ModoTopologia.json
 
-### Características Principales
+## Estado actual (fase backend)
 
-- **Árbol AVL con balanceo automático**: Cada inserción/eliminación mantiene el árbol equilibrado
-- **Sistema dinámico de precios**: La posición de cada nodo afecta precios, promociones y prioridades
-- **Comparación AVL vs BST**: Visualización paralela para demostrar la ventaja del balanceo
-- **Historial con deshacer (Ctrl+Z)**: Pila de estados para retroceder acciones
-- **Versionado persistente**: Guardar y restaurar versiones nombradas del árbol
-- **Visualización en tiempo real**: Interfaz gráfica para gestionar vuelos
+Se implemento una primera version funcional con FastAPI y servicios base, sin tocar los arboles entregados por el profesor:
 
----
+- core/avl.py y core/bst.py: sin cambios estructurales.
+- services/: carga JSON, serializacion, undo, versionado, cola y renderer.
+- api/: rutas iniciales para operaciones del sistema.
+- app.py: entrada FastAPI.
 
-## Estructura del Proyecto
+## Estructura actual del proyecto
 
 ```
-SkyBalance-AVL/
-├── app.py                  # Punto de entrada principal
-├── data/                   # Archivos JSON de ejemplo
-│   ├── ModoInsercion.json  # Ejemplo: carga por inserción
-│   └── ModoTopologia.json  # Ejemplo: carga por topología
-├── core/                   # Lógica central del sistema
-│   ├── avl.py              # Implementación del Árbol AVL
-│   ├── bst.py              # Implementación del Árbol BST (comparación)
-│   ├── models.py           # Modelos de datos (Vuelo, Nodo)
-│   ├── metrics.py          # Métricas del árbol (altura, hojas, etc.)
-│   ├── economics.py        # Cálculos de precios y promociones
-│   └── auditor.py          # Validación de propiedades AVL
-├── services/               # Servicios auxiliares
-│   ├── json_loader.py      # Carga de archivos JSON
-│   ├── serializer.py       # Exportación a JSON
-│   ├── queue_manager.py    # Gestión de colas (recorrido por anchura)
-│   ├── undo_manager.py     # Sistema de deshacer (pila)
-│   ├── version_manager.py  # Versionado de estados
-│   └── tree_renderer_data.py # Datos para renderizado
-├── ui/                     # Interfaz gráfica
-│   ├── main_view.py        # Vista principal
-│   ├── tree_view.py        # Visualización del árbol
-│   ├── forms.py            # Formularios de entrada
-│   ├── dialogs.py          # Diálogos del sistema
-│   ├── compare_view.py     # Vista comparativa AVL vs BST
-│   └── metrics_panel.py    # Panel de métricas
-└── tests/                  # Pruebas unitarias
-    ├── test_avl.py
-    ├── test_bst.py
-    ├── test_loader.py
-    └── test_rules.py
+Proyect-data-structures/
+├── app.py
+├── requirements.txt
+├── .gitignore
+├── .env.example
+├── data/
+│   ├── ModoInsercion.json
+│   └── ModoTopologia.json
+├── core/
+│   ├── avl.py
+│   ├── bst.py
+│   ├── models.py
+│   ├── metrics.py
+│   ├── economics.py
+│   └── auditor.py
+├── services/
+│   ├── json_loader.py
+│   ├── serializer.py
+│   ├── undo_manager.py
+│   ├── version_manager.py
+│   ├── queue_manager.py
+│   └── tree_renderer_data.py
+├── api/
+│   ├── __init__.py
+│   ├── state.py
+│   ├── schemas.py
+│   └── routes/
+│       ├── __init__.py
+│       ├── flights.py
+│       ├── versions.py
+│       └── export.py
+├── tests/
+│   ├── test_avl.py
+│   ├── test_bst.py
+│   ├── test_loader.py
+│   └── test_rules.py
+└── ui/
+   ├── main_view.py
+   ├── tree_view.py
+   ├── forms.py
+   ├── dialogs.py
+   ├── compare_view.py
+   └── metrics_panel.py
 ```
 
-## Cómo Ejecutar
+## Ejecutar API
 
 ```bash
-# Clonar o descargar el proyecto
 cd Proyect-data-structures
-
-# Ejecutar la aplicación
-python app.py
+pip install -r requirements.txt
+uvicorn app:app --reload
 ```
 
----
+Documentacion interactiva:
 
-## Formato JSON Esperado
+- http://127.0.0.1:8000/docs
 
-El sistema soporta dos modos de carga. Los archivos de ejemplo están en la carpeta `data/`.
+## Endpoints iniciales
 
-### Modo Inserción (`data/ModoInsercion.json`)
+### Vuelos
 
-Inserta vuelos uno a uno en el AVL (con balanceo) y en el BST (sin balanceo).
+- GET /flights/
+- POST /flights/
+- DELETE /flights/{code}?mode=ELIMINAR|CANCELAR
+- GET /flights/metrics
+- GET /flights/economics
+- GET /flights/audit
+- GET /flights/compare
+- POST /flights/stress-mode
+- POST /flights/rebalance-global
 
-```json
-{
-  "tipo": "INSERCION",
-  "ordenamiento": "codigo",
-  "vuelos": [
-    {
-      "codigo": "SB400",
-      "origen": "Medellin",
-      "destino": "Cartagena",
-      "horaSalida": "10:00",
-      "precioBase": 400,
-      "pasajeros": 120,
-      "prioridad": 2,
-      "promocion": false,
-      "alerta": false
-    }
-  ]
-}
-```
+### Cola de inserciones
 
-| Campo        | Tipo    | Descripción                                           |
-| ------------ | ------- | ----------------------------------------------------- |
-| `codigo`     | string  | Identificador único del vuelo (clave de ordenamiento) |
-| `origen`     | string  | Ciudad de origen                                      |
-| `destino`    | string  | Ciudad de destino                                     |
-| `horaSalida` | string  | Hora de salida (HH:MM)                                |
-| `precioBase` | number  | Precio base del vuelo                                 |
-| `pasajeros`  | number  | Cantidad de pasajeros                                 |
-| `prioridad`  | number  | Nivel de prioridad (1-3)                              |
-| `promocion`  | boolean | Si tiene promoción activa                             |
-| `alerta`     | boolean | Si tiene alerta activa                                |
+- POST /flights/queue
+- GET /flights/queue
+- POST /flights/queue/process
 
-### Modo Topología (`data/ModoTopologia.json`)
+### Versionado
 
-Reconstruye el árbol respetando la estructura padre-hijo exacta del JSON.
+- POST /versions/save
+- GET /versions/
+- POST /versions/restore/{name}
+- DELETE /versions/{name}
 
-```json
-{
-  "tipo": "TOPOLOGIA",
-  "raiz": {
-    "codigo": 500,
-    "origen": "Medellin",
-    "destino": "Cartagena",
-    "horaSalida": "10:00",
-    "precioBase": 400,
-    "precioFinal": 400,
-    "pasajeros": 120,
-    "promocion": false,
-    "alerta": false,
-    "altura": 5,
-    "factorEquilibrio": 0,
-    "izquierdo": { ... },
-    "derecho": { ... }
-  }
-}
-```
+### Carga/exportacion y undo
 
-| Campo adicional    | Tipo        | Descripción                               |
-| ------------------ | ----------- | ----------------------------------------- |
-| `precioFinal`      | number      | Precio calculado (puede diferir del base) |
-| `altura`           | number      | Altura del nodo en el árbol               |
-| `factorEquilibrio` | number      | Factor de equilibrio AVL (-1, 0, 1)       |
-| `izquierdo`        | object/null | Subárbol izquierdo                        |
-| `derecho`          | object/null | Subárbol derecho                          |
+- POST /trees/load-file
+- GET /trees/export/topology
+- GET /trees/export/insertion
+- POST /trees/export/topology-file
+- POST /trees/export/insertion-file
+- POST /trees/undo
+
+## Plan de commits recomendados (paso a paso)
+
+Para que avances con commits pequenos y claros:
+
+1. Commit 1 - Servicios JSON base
+  - services/json_loader.py
+  - services/serializer.py
+
+2. Commit 2 - Historial y versionado
+  - services/undo_manager.py
+  - services/version_manager.py
+
+3. Commit 3 - Cola y datos de render
+  - services/queue_manager.py
+  - services/tree_renderer_data.py
+
+4. Commit 4 - Utilidades core de soporte
+  - core/metrics.py
+  - core/auditor.py
+  - core/economics.py
+
+5. Commit 5 - API FastAPI inicial
+  - app.py
+  - api/
+
+6. Commit 6 - Documentacion y entorno
+  - README
+  - requirements.txt
+  - .gitignore
+  - .env.example
+
+## Notas de alcance de esta fase
+
+- Esta fase prioriza backend y persistencia para que el proyecto ya sea funcional.
+- La carpeta ui/ se conserva para fase visual posterior.
+- El siguiente paso recomendado es agregar pruebas para services/ y rutas API.
