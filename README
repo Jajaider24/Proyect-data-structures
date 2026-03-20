@@ -1,4 +1,8 @@
-# SkyBalance AVL - Sistema de Gestion Aerea
+# SkyBalance AVL - Sistema de Gestion Aerea 
+(Proyecto Estructura de Datos)
+(Jaider León Diaz
+Jhoan Sebastián Velez
+Michael Ramirez)
 
 ## Objetivo
 
@@ -121,31 +125,37 @@ Documentacion interactiva:
 Para que avances con commits pequenos y claros:
 
 1. Commit 1 - Servicios JSON base
-  - services/json_loader.py
-  - services/serializer.py
+
+- services/json_loader.py
+- services/serializer.py
 
 2. Commit 2 - Historial y versionado
-  - services/undo_manager.py
-  - services/version_manager.py
+
+- services/undo_manager.py
+- services/version_manager.py
 
 3. Commit 3 - Cola y datos de render
-  - services/queue_manager.py
-  - services/tree_renderer_data.py
+
+- services/queue_manager.py
+- services/tree_renderer_data.py
 
 4. Commit 4 - Utilidades core de soporte
-  - core/metrics.py
-  - core/auditor.py
-  - core/economics.py
+
+- core/metrics.py
+- core/auditor.py
+- core/economics.py
 
 5. Commit 5 - API FastAPI inicial
-  - app.py
-  - api/
+
+- app.py
+- api/
 
 6. Commit 6 - Documentacion y entorno
-  - README
-  - requirements.txt
-  - .gitignore
-  - .env.example
+
+- README
+- requirements.txt
+- .gitignore
+- .env.example
 
 ## Notas de alcance de esta fase
 
