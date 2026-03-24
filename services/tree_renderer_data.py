@@ -4,7 +4,7 @@ from collections import deque
 from typing import Any, Optional
 
 from core.bst import BST
-from core.models import TreeNode
+from models.nodes import TreeNode
 
 
 def _node_label(node: TreeNode) -> str:

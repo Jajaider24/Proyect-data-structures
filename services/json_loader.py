@@ -6,7 +6,8 @@ from typing import Any, Optional
 
 from core.avl import AVL
 from core.bst import BST
-from core.models import FlightRecord, TreeNode
+from models.flight_record import FlightRecord
+from models.nodes import TreeNode
 
 
 _PRIORITY_MAP: dict[int, str] = {

@@ -22,7 +22,8 @@ Este archivo está pensado para ser muy didáctico:
 from collections import deque
 from typing import Any, Optional
 
-from core.models import FlightRecord, TreeNode
+from models.flight_record import FlightRecord
+from models.nodes import TreeNode
 
 
 class BST:

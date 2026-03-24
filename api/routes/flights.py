@@ -4,9 +4,9 @@ from fastapi import APIRouter, HTTPException, Query
 
 from api import state
 from api.schemas import FlightPayload, QueueProcessPayload, StressModePayload
-from core.auditor import audit_avl_tree, audit_tree_pair
-from core.economics import calculate_tree_economics, top_profitable_flights
-from core.metrics import collect_tree_metrics, compare_tree_metrics
+from controllers.audit_controller import audit_avl_tree, audit_tree_pair
+from controllers.economics_controller import calculate_tree_economics, top_profitable_flights
+from controllers.metrics_controller import collect_tree_metrics, compare_tree_metrics
 from services.json_loader import flight_record_from_dict, load_trees_from_payload
 from services.serializer import tree_to_insertion_payload
 

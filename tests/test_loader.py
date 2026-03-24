@@ -1,6 +1,6 @@
 import unittest
 
-from core.models import FlightRecord, normalize_flight_code
+from models import FlightRecord, normalize_flight_code
 
 
 class TestLoaderAndNormalization(unittest.TestCase):

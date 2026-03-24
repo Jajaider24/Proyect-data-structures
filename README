@@ -1,30 +1,36 @@
-# SkyBalance AVL - Sistema de Gestion Aerea 
-(Proyecto Estructura de Datos)
-(Jaider León Diaz
-Jhoan Sebastián Velez
-Michael Ramirez)
+# SkyBalance AVL - Sistema de Gestion Aerea
+
+Proyecto de Estructura de Datos
+
+Integrantes:
+
+- Jaider Leon Diaz
+- Jhoan Sebastian Velez
+- Michael Ramirez
 
 ## Objetivo
 
-SkyBalance AVL administra vuelos con un arbol AVL como nucleo operativo. El proyecto mantiene comparacion paralela contra BST para evidenciar impacto de balanceo en altura, recorridos y eficiencia.
+SkyBalance AVL administra vuelos con un arbol AVL como nucleo operativo y mantiene comparacion contra BST para analizar diferencias de altura, recorridos y comportamiento estructural.
 
 ## Regla importante del proyecto
 
-Los archivos del profesor no se modifican:
+Los archivos base de entrada del docente no se modifican:
 
 - data/ModoInsercion.json
 - data/ModoTopologia.json
 
-## Estado actual (fase backend)
+## Arquitectura actual (limpia)
 
-Se implemento una primera version funcional con FastAPI y servicios base, sin tocar los arboles entregados por el profesor:
+La arquitectura quedo organizada por responsabilidades:
 
-- core/avl.py y core/bst.py: sin cambios estructurales.
-- services/: carga JSON, serializacion, undo, versionado, cola y renderer.
-- api/: rutas iniciales para operaciones del sistema.
-- app.py: entrada FastAPI.
+- core/: estructuras de datos puras (BST, AVL, Pila, Cola).
+- models/: entidades del dominio y nodos.
+- controllers/: logica de auditoria, metricas y economia.
+- services/: carga/serializacion, cola de inserciones, undo, versionado, datos para UI.
+- api/: rutas y esquemas de FastAPI.
+- tests/: pruebas unitarias del proyecto.
 
-## Estructura actual del proyecto
+## Estructura del proyecto
 
 ```
 Proyect-data-structures/
@@ -38,10 +44,18 @@ Proyect-data-structures/
 ├── core/
 │   ├── avl.py
 │   ├── bst.py
-│   ├── models.py
-│   ├── metrics.py
-│   ├── economics.py
-│   └── auditor.py
+│   ├── stack.py
+│   └── queue.py
+├── models/
+│   ├── __init__.py
+│   ├── flight_record.py
+│   ├── nodes.py
+│   └── normalization.py
+├── controllers/
+│   ├── __init__.py
+│   ├── audit_controller.py
+│   ├── economics_controller.py
+│   └── metrics_controller.py
 ├── services/
 │   ├── json_loader.py
 │   ├── serializer.py
@@ -62,7 +76,8 @@ Proyect-data-structures/
 │   ├── test_avl.py
 │   ├── test_bst.py
 │   ├── test_loader.py
-│   └── test_rules.py
+│   ├── test_rules.py
+│   └── test_linear_structures.py
 └── ui/
    ├── main_view.py
    ├── tree_view.py
@@ -72,7 +87,7 @@ Proyect-data-structures/
    └── metrics_panel.py
 ```
 
-## Endpoints iniciales
+## Endpoints
 
 ### Vuelos
 
@@ -99,7 +114,7 @@ Proyect-data-structures/
 - POST /versions/restore/{name}
 - DELETE /versions/{name}
 
-### Carga/exportacion y undo
+### Carga, exportacion y undo
 
 - POST /trees/load-file
 - GET /trees/export/topology
@@ -108,8 +123,17 @@ Proyect-data-structures/
 - POST /trees/export/insertion-file
 - POST /trees/undo
 
-### Correr el proyecto con la api hasta el momento
-1. cd C:\Desktop\Proyect-data-structures
-2. .\.venv\Scripts\Activate.ps1
+## Ejecucion local de la API
+
+1. cd C:/Desktop/Proyect-data-structures
+2. ./.venv/Scripts/Activate.ps1
 3. uvicorn app:app --reload
-4. Abrir en el navegador: http://127.0.0.1:8000/docs
+4. Abrir http://127.0.0.1:8000/docs
+
+## Pruebas
+
+Ejecutar pruebas unitarias:
+
+1. cd C:/Desktop/Proyect-data-structures
+2. ./.venv/Scripts/Activate.ps1
+3. python -m unittest discover -s tests -p "test\_\*.py"

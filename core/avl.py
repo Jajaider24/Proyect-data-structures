@@ -37,7 +37,8 @@ Esto deja el árbol consistente con las reglas del proyecto.
 from typing import Any, Optional
 
 from core.bst import BST
-from core.models import FlightRecord, TreeNode
+from models.flight_record import FlightRecord
+from models.nodes import TreeNode
 
 
 class AVL(BST):

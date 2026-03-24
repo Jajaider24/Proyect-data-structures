@@ -1,7 +1,7 @@
 import unittest
 
 from core.avl import AVL
-from core.models import FlightRecord, Node
+from models import FlightRecord, Node
 
 
 def build_flight(code: int) -> FlightRecord:

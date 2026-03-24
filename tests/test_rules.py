@@ -1,7 +1,7 @@
 import unittest
 
 from core.avl import AVL
-from core.models import FlightRecord
+from models import FlightRecord
 
 
 def build_flight(code: int, base_price: float = 100.0, promotion: float = 0.0, passengers: int = 10) -> FlightRecord:

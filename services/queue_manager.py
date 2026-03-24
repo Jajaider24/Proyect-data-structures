@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from collections import deque
 from dataclasses import dataclass
 from typing import Any, Optional
 
 from core.avl import AVL
+from core.queue import Cola
 from services.json_loader import flight_record_from_dict
 
 
@@ -20,14 +20,14 @@ class InsertionQueueManager:
 	"""
 
 	def __init__(self) -> None:
-		self._queue: deque[QueuedInsertion] = deque()
+		self._queue = Cola()
 		self._next_request_id = 1
 
 	def enqueue(self, flight_payload: dict[str, Any]) -> int:
 		request_id = self._next_request_id
 		self._next_request_id += 1
 
-		self._queue.append(QueuedInsertion(request_id=request_id, flight_payload=flight_payload))
+		self._queue.encolar(QueuedInsertion(request_id=request_id, flight_payload=flight_payload))
 		return request_id
 
 	def pending_count(self) -> int:
@@ -45,10 +45,10 @@ class InsertionQueueManager:
 		]
 
 	def process_next(self, avl_tree: AVL) -> Optional[dict[str, Any]]:
-		if not self._queue:
+		if self._queue.estaVacia():
 			return None
 
-		item = self._queue.popleft()
+		item = self._queue.desencolar()
 		flight = flight_record_from_dict(item.flight_payload)
 		inserted = avl_tree.insert(flight)
 		audit = avl_tree.audit_avl()
@@ -63,7 +63,7 @@ class InsertionQueueManager:
 	def process_all(self, avl_tree: AVL, limit: Optional[int] = None) -> list[dict[str, Any]]:
 		processed: list[dict[str, Any]] = []
 
-		while self._queue and (limit is None or len(processed) < limit):
+		while not self._queue.estaVacia() and (limit is None or len(processed) < limit):
 			result = self.process_next(avl_tree)
 			if result is not None:
 				processed.append(result)
@@ -71,4 +71,4 @@ class InsertionQueueManager:
 		return processed
 
 	def clear(self) -> None:
-		self._queue.clear()
+		self._queue.limpiar()
