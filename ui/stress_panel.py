@@ -1,5 +1,5 @@
 import flet as ft
-from metodos_vuelos import pruebas
+from metodos_vuelos import middleware
 from flet import canvas
 
 NODE_RADIUS = 40
@@ -160,10 +160,10 @@ def PanelStress(page):
     page.title = "Modo Estres"
 
     def get_render_information():
-        return pruebas.render_information()
+        return middleware.render_information()
     
     def flights_code_capture():
-        flights = pruebas.get_flight_list()
+        flights = middleware.get_flight_list()
         return [
             ft.DropdownOption(key=f['codigo'], text=f['codigo']) 
             for f in flights
@@ -173,7 +173,7 @@ def PanelStress(page):
         return next((f for f in flights if f['codigo'] == codigo.value), None)
 
     def complete_text(e):
-        flights = pruebas.get_flight_list()
+        flights = middleware.get_flight_list()
         flight_find = search_flight(flights)
         if flight_find:
             origen.value = "ORIGEN: " + flight_find['origen']
@@ -195,9 +195,9 @@ def PanelStress(page):
         if(codigo.value is None):
             print("No se puede eliminar o cancelar un árbol vacio")
         else:
-            flights = pruebas.get_flight_list()
+            flights = middleware.get_flight_list()
             flight_find = search_flight(flights)
-            pruebas.delete_flight(flight_find["codigoNormalizado"], mode)
+            middleware.delete_flight(flight_find["codigoNormalizado"], mode)
             page.pop_dialog()
             page.pop_dialog()
             codigo.options = flights_code_capture()
@@ -365,7 +365,7 @@ def PanelStress(page):
     )
 
     def audit_avl(e=None):
-        report = pruebas.audit_AVL()
+        report = middleware.audit_AVL()
         audit_text.value = format_audit_report(report)
         page.show_dialog(audit_modal)
         page.update()
@@ -386,7 +386,7 @@ def PanelStress(page):
     button_height = 50
 
     def global_rebalance(e=None):
-        pruebas.global_rebalance()
+        middleware.global_rebalance()
         refresh_tree()
 
     async def open_menu(e):

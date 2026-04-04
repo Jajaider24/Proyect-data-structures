@@ -1,6 +1,6 @@
 import flet as ft
 import json
-from metodos_vuelos import pruebas
+from metodos_vuelos import middleware
 
 def InsertionView(page):
     # Definimos el estilo una sola vez para reutilizarlo
@@ -11,7 +11,7 @@ def InsertionView(page):
         files = await ft.FilePicker().pick_files(allow_multiple=True)
         try:
             datos = vars(files[0])
-            pruebas.send_path_information(datos['path'])
+            middleware.send_path_information(datos['path'])
         except:
             print("No se ha seleccionado ningún archivo")
         finally:

@@ -8,7 +8,7 @@ from modify_flight import ModifyPanel
 from create_flight_stress import StressForms
 from update_flight_stress import UpdatePanelStress
 from graphic_test import draw_test
-from metodos_vuelos import pruebas
+from metodos_vuelos import middleware
 
 def main(page: ft.Page):
     page.title = "Menú Principal"
@@ -25,7 +25,7 @@ def main(page: ft.Page):
         await page.push_route("/concurrencypanel")
     
     async def open_panel_stress(e):
-        print(pruebas.set_stress_mode(True))
+        print(middleware.set_stress_mode(True))
         await page.push_route("/stresspanel")
 
     async def open_panel_draw(e):

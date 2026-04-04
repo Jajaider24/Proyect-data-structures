@@ -1,5 +1,5 @@
 import flet as ft
-from metodos_vuelos import pruebas
+from metodos_vuelos import middleware
 from datetime import date
 from flet import canvas
 
@@ -168,7 +168,7 @@ def PanelAVL(page):
     button_height = 50
 
     def get_render_information():
-        return pruebas.render_information()
+        return middleware.render_information()
     
     avl_nodes, avl_edges, bst_nodes, bst_edges = get_render_information()
 
@@ -203,7 +203,7 @@ def PanelAVL(page):
         await page.push_route("/modifypanel")
 
     def flights_code_capture():
-        flights = pruebas.get_flight_list()
+        flights = middleware.get_flight_list()
         return [
             ft.DropdownOption(key=f['codigo'], text=f['codigo']) 
             for f in flights
@@ -213,7 +213,7 @@ def PanelAVL(page):
         return next((f for f in flights if f['codigo'] == codigo.value), None)
 
     def complete_text(e):
-        flights = pruebas.get_flight_list()
+        flights = middleware.get_flight_list()
         flight_find = search_flight(flights)
         if flight_find:
             origen.value = "ORIGEN: " + flight_find['origen']
@@ -235,9 +235,9 @@ def PanelAVL(page):
         if(codigo.value is None):
             print("No se puede eliminar o cancelar un árbol vacio")
         else:
-            flights = pruebas.get_flight_list()
+            flights = middleware.get_flight_list()
             flight_find = search_flight(flights)
-            pruebas.delete_flight(flight_find["codigoNormalizado"], mode)
+            middleware.delete_flight(flight_find["codigoNormalizado"], mode)
             page.pop_dialog()
             page.pop_dialog()
             codigo.options = flights_code_capture()
@@ -296,15 +296,15 @@ def PanelAVL(page):
         )
         page.pop_dialog()
         if path_destino:
-            saved = pruebas.save_tree_insertion_file(path_destino)
+            saved = middleware.save_tree_insertion_file(path_destino)
             if saved is None:
                 return
 
             print(f"Archivo guardado en: {path_destino}")
             if nombre.value != "":
-                pruebas.save_version(nombre.value, sobreescribir.value)
+                middleware.save_version(nombre.value, sobreescribir.value)
             else:
-                pruebas.save_version(default_name, sobreescribir.value)
+                middleware.save_version(default_name, sobreescribir.value)
 
     nombre = ft.TextField(label = "Nombre de la Version", hint_text = "Ingrese el Nombre")
     sobreescribir = ft.Switch(label="Sobreescribir", value=False, label_text_style=ft.TextStyle(color = ft.Colors.BLACK, size = 15))

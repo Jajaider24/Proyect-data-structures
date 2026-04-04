@@ -1,5 +1,5 @@
 import flet as ft
-from metodos_vuelos import pruebas
+from metodos_vuelos import middleware
 
 def UpdatePanelStress(page):
     page.title = "Panel Modificar Vuelos en Modo Estres"
@@ -11,7 +11,7 @@ def UpdatePanelStress(page):
     textField_height = 50
 
     def flights_code_capture():
-        flights = pruebas.get_flight_list()
+        flights = middleware.get_flight_list()
         return [
             ft.DropdownOption(key=f['codigo'], text=f['codigo']) 
             for f in flights
@@ -21,7 +21,7 @@ def UpdatePanelStress(page):
         return next((f for f in flights if f['codigo'] == codigo.value), None)
     
     def complete_fields(e):
-        flights = pruebas.get_flight_list()
+        flights = middleware.get_flight_list()
         flight_find = search_flight(flights, e)
         if flight_find:
             origen.value = flight_find['origen']
@@ -115,7 +115,7 @@ def UpdatePanelStress(page):
     alerta = ft.Switch(label="   Alerta", value=False, label_text_style=ft.TextStyle(color = ft.Colors.BLACK, size = 15))
 
     def send_datos(e):
-        flights = pruebas.get_flight_list()
+        flights = middleware.get_flight_list()
         flight_find = search_flight(flights, e)
         if flight_find:
             datos = {
@@ -130,7 +130,7 @@ def UpdatePanelStress(page):
                 'alerta': alerta.value,
             }
             limpiar_campos()
-            pruebas.modify_flight(datos)
+            middleware.modify_flight(datos)
         else:
             print("Ese vuelo no existe")
 

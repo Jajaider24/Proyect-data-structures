@@ -1,5 +1,5 @@
 import flet as ft
-from metodos_vuelos import pruebas
+from metodos_vuelos import middleware
 from flet import canvas
 
 NODE_RADIUS = 40
@@ -158,7 +158,7 @@ def PanelConcurrency(page):
     page.title = "Panel Simulación de Concurrencia"
 
     def get_render_information():
-        return pruebas.render_information()
+        return middleware.render_information()
     
     avl_nodes, avl_edges, bst_nodes, bst_edges = get_render_information()
 
@@ -205,7 +205,7 @@ def PanelConcurrency(page):
     def process_queue(e=None):
         limit = limite.value
         page.pop_dialog()
-        pruebas.process_queue(limit)
+        middleware.process_queue(limit)
         refresh_tree()
 
     limit_modal = ft.AlertDialog(
@@ -395,5 +395,5 @@ def send_to_queue():
         'discount': promocion.value,
         'alert': alerta.value,
     }
-    pruebas.enqueue(datos)
+    middleware.enqueue(datos)
 

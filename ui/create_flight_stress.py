@@ -1,5 +1,5 @@
 import flet as ft
-from metodos_vuelos import pruebas
+from metodos_vuelos import middleware
 def StressForms(page):
     page.title = "Panel Captura Datos"
 
@@ -167,7 +167,7 @@ def send_datos(e):
         'alerta': alerta.value,
     }
     limpiar_campos()
-    pruebas.crear_vuelo(datos)
+    middleware.crear_vuelo(datos)
 
 def limpiar_campos():
     codigo.value = ''
