@@ -3,10 +3,11 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Query
 
 from api import state
-from api.schemas import FlightPayload, QueueProcessPayload, StressModePayload
+from api.schemas import FlightPayload, FlightUpdatePayload, QueueProcessPayload, StressModePayload
 from controllers.audit_controller import audit_avl_tree, audit_tree_pair
 from controllers.economics_controller import calculate_tree_economics, top_profitable_flights
 from controllers.metrics_controller import collect_tree_metrics, compare_tree_metrics
+from models.normalization import normalize_flight_code
 from services.json_loader import flight_record_from_dict, load_trees_from_payload
 from services.serializer import tree_to_insertion_payload
 
@@ -17,6 +18,28 @@ def _sync_bst_from_avl() -> None:
     payload = tree_to_insertion_payload(state.avl_tree)
     result = load_trees_from_payload(payload)
     state.bst_tree = result["bst"]
+
+
+def _apply_flight_update(code: int, data: dict[str, object]) -> dict[str, object]:
+    if state.avl_tree.search(code) is None:
+        raise HTTPException(status_code=404, detail="No existe un vuelo con ese codigo")
+
+    state.undo_manager.push_snapshot(state.avl_tree, action=f"update:{code}")
+
+    state.avl_tree.delete(code)
+    state.bst_tree.delete(code)
+
+    try:
+        avl_node = state.avl_tree.insert(flight_record_from_dict(data))
+        state.bst_tree.insert(flight_record_from_dict(data))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return {
+        "message": "Vuelo actualizado correctamente.",
+        "updated_key": avl_node.key,
+        "metrics": collect_tree_metrics(state.avl_tree),
+    }
 
 
 @router.get("/")
@@ -43,6 +66,18 @@ def create_flight(payload: FlightPayload) -> dict[str, object]:
         "inserted_key": avl_node.key,
         "metrics": collect_tree_metrics(state.avl_tree),
     }
+
+
+@router.put("/{code}")
+def update_flight(code: str, payload: FlightUpdatePayload) -> dict[str, object]:
+    try:
+        code_key = normalize_flight_code(code)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    data = payload.model_dump()
+    data["codigo"] = code
+    return _apply_flight_update(code_key, data)
 
 
 @router.delete("/{code}")

@@ -5,6 +5,36 @@ from pathlib import Path
 from typing import Any
 
 from core.bst import BST
+from models.flight_record import FlightRecord
+
+
+def _priority_to_number(priority: str) -> int:
+	value = str(priority).strip().upper()
+	if value == "ALTA":
+		return 1
+	if value == "BAJA":
+		return 3
+	return 2
+
+
+def _insertion_flight_payload(flight: FlightRecord) -> dict[str, Any]:
+	promotion_value: float | bool
+	if float(flight.promotion) == 0.0:
+		promotion_value = False
+	else:
+		promotion_value = float(flight.promotion)
+
+	return {
+		"codigo": flight.code_raw,
+		"origen": flight.origin,
+		"destino": flight.destination,
+		"horaSalida": flight.departure_time,
+		"precioBase": flight.base_price,
+		"pasajeros": flight.passengers,
+		"prioridad": _priority_to_number(flight.priority),
+		"promocion": promotion_value,
+		"alerta": bool(flight.alert == "ALERTA"),
+	}
 
 
 def tree_to_topology_payload(tree: BST) -> dict[str, Any]:
@@ -24,7 +54,7 @@ def tree_to_insertion_payload(tree: BST) -> dict[str, Any]:
 	return {
 		"tipo": "INSERCION",
 		"ordenamiento": "codigo",
-		"vuelos": tree.to_insertion_list(),
+		"vuelos": [_insertion_flight_payload(flight) for flight in tree.level_order()],
 	}
 
 

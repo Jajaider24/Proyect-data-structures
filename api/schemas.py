@@ -17,6 +17,17 @@ class FlightPayload(BaseModel):
     alerta: str | bool = "NORMAL"
 
 
+class FlightUpdatePayload(BaseModel):
+    origen: str = ""
+    destino: str = ""
+    horaSalida: str = ""
+    precioBase: float = 0.0
+    pasajeros: int = 0
+    prioridad: int | str = "MEDIA"
+    promocion: float | bool = 0.0
+    alerta: str | bool = "NORMAL"
+
+
 class StressModePayload(BaseModel):
     enabled: bool
 

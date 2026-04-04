@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException
 from api import state
 from api.schemas import FilePathPayload
 from services.json_loader import load_trees_from_json_file, load_trees_from_payload
+from services.tree_renderer_data import build_compare_renderer_data
 from services.serializer import (
     save_tree_insertion,
     save_tree_topology,
@@ -63,6 +64,11 @@ def export_insertion_to_file(payload: FilePathPayload) -> dict[str, object]:
         "message": "Inserciones exportadas.",
         "path": str(path),
     }
+
+
+@router.get("/render-data/compare")
+def compare_tree_render_data() -> dict[str, object]:
+    return build_compare_renderer_data(state.avl_tree, state.bst_tree)
 
 
 @router.post("/undo")
