@@ -3,6 +3,12 @@ from insertion_view import InsertionView
 from avl_panel import PanelAVL
 from concurrency_panel import PanelConcurrency
 from stress_panel import PanelStress
+from create_flight import PanelForms
+from modify_flight import ModifyPanel
+from create_flight_stress import StressForms
+from update_flight_stress import UpdatePanelStress
+from graphic_test import draw_test
+from metodos_vuelos import pruebas
 
 def main(page: ft.Page):
     page.title = "Menú Principal"
@@ -19,7 +25,12 @@ def main(page: ft.Page):
         await page.push_route("/concurrencypanel")
     
     async def open_panel_stress(e):
+        print(pruebas.set_stress_mode(True))
         await page.push_route("/stresspanel")
+
+    async def open_panel_draw(e):
+        await page.push_route("/drawpanel")
+        
 
     def route_change():
         print("Route change:", page.route)
@@ -55,6 +66,7 @@ def main(page: ft.Page):
                                     ft.Button("Panel AVL de Vuelos", width = 200, height = 50, on_click=open_panel_avl),
                                     ft.Button("Panel de Concurrencia", width = 200, height = 50, on_click=open_panel_concurrency),
                                     ft.Button("Panel Modo Estres", width = 200, height = 50, on_click=open_panel_stress),
+                                    ft.Button("Panel de Graficas", width = 200, height = 50, on_click=open_panel_draw)
                                 ]
                             )
                     )
@@ -78,8 +90,33 @@ def main(page: ft.Page):
             page.views.append(
                 PanelStress(page)
             )
-        page.update()
 
+        if page.route == "/formpanel":
+            page.views.append(
+                PanelForms(page)
+            )
+        
+        if page.route == "/modifypanel":
+            page.views.append(
+                ModifyPanel(page)
+            )
+
+        if page.route == "/stressform":
+            page.views.append(
+                StressForms(page)
+            )
+        
+        if page.route == "/updateflightstress":
+            page.views.append(
+                UpdatePanelStress(page)
+            )
+
+        if page.route == "/drawpanel":
+            page.views.append(
+                draw_test(page)
+            )
+        page.update()
+        
     async def view_pop(e):
         if e.view is not None:
             print("View pop:", e.view)
