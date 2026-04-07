@@ -375,6 +375,9 @@ def PanelAVL(page):
                                 ft.Button("Eliminar/Cancelar", width=button_width, height=button_height, style=button_style, on_click=lambda e: page.show_dialog(modal_dialog),),
                                 ft.Button("Guardar Árbol", width=button_width, height=button_height, style=button_style, on_click=lambda e: page.show_dialog(save_modal)),
                                 ft.Button("Eliminación Inteligente", width=button_width, height=button_height, style=button_style),
+                                ft.Button("Retroceso", width=button_width, height=button_height, style=button_style),
+                                ft.Button("Restaurar Versión", width=button_width, height=button_height, style=button_style),
+                                ft.Button("Metricas", width=button_width, height=button_height, style=button_style),
                                 ft.TextButton("Volver", style = ft.ButtonStyle(ft.Colors.BLACK), on_click=open_menu)
                             ],
                         ),
