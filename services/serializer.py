@@ -43,6 +43,7 @@ def tree_to_topology_payload(tree: BST) -> dict[str, Any]:
 	"""
 	return {
 		"tipo": "TOPOLOGIA",
+		"critical_depth_limit": getattr(tree, "critical_depth_limit", None),
 		"raiz": tree.to_topology_dict(),
 	}
 

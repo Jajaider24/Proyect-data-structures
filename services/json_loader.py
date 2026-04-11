@@ -157,11 +157,15 @@ def load_trees_from_payload(payload: dict[str, Any], critical_depth_limit: Optio
 	if not isinstance(payload, dict):
 		raise ValueError("El contenido JSON debe ser un objeto en la raiz.")
 
+	effective_critical_depth_limit = critical_depth_limit
+	if effective_critical_depth_limit is None:
+		effective_critical_depth_limit = payload.get("critical_depth_limit")
+
 	mode = str(payload.get("tipo", "")).strip().upper()
 	if mode == "INSERCION":
-		avl, bst = _load_insertion_mode(payload, critical_depth_limit)
+		avl, bst = _load_insertion_mode(payload, effective_critical_depth_limit)
 	elif mode == "TOPOLOGIA":
-		avl, bst = _load_topology_mode(payload, critical_depth_limit)
+		avl, bst = _load_topology_mode(payload, effective_critical_depth_limit)
 	else:
 		raise ValueError("El campo 'tipo' debe ser INSERCION o TOPOLOGIA.")
 
