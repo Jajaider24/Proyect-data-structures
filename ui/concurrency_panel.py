@@ -1,6 +1,7 @@
 import flet as ft
 from metodos_vuelos import middleware
 from flet import canvas
+import asyncio
 
 NODE_RADIUS = 40
 TOP_MARGIN = 40
@@ -203,25 +204,12 @@ def PanelConcurrency(page):
                     hint_text="Ingrese el limite de colas a procesar",
                     )
 
-    def process_queue(e=None):
-        limit = limite.value
-        page.pop_dialog()
-        middleware.process_queue(limit)
-        refresh_tree()
-
-    limit_modal = ft.AlertDialog(
-            modal=True,
-            title=ft.Text("Ingrese la cantidad de vuelos a procesar"),
-            content = ft.Column(controls = [
-                limite,
-            ]),
-            actions=[
-                ft.TextButton("CONFIRMAR", on_click = process_queue),
-                ft.TextButton("SALIR", on_click=lambda e: page.pop_dialog()),
-            ],
-            actions_alignment=ft.MainAxisAlignment.END,
-            on_dismiss=lambda e: print("Modal dialog dismissed!"),
-        )
+    async def process_queue(e=None):
+        limit = middleware.get_list_queue()['pending']
+        for _ in range(limit):
+            middleware.process_queue(1)
+            refresh_tree()
+            await asyncio.sleep(5)
 
     # Contenedor Izquierdo (70%) y Derecho (30%)
     return ft.View(
@@ -287,7 +275,7 @@ def PanelConcurrency(page):
                                                         bgcolor=ft.Colors.ORANGE,
                                                         padding=10,
                                                         shape = ft.RoundedRectangleBorder(radius = 10),
-                                                        text_style=ft.TextStyle(size=15)), on_click = lambda e: page.show_dialog(limit_modal)),
+                                                        text_style=ft.TextStyle(size=15)), on_click = process_queue),
                                 ft.TextButton("Volver", style=ft.ButtonStyle(color=ft.Colors.BLACK), on_click=open_menu)
                             ],
                         ),

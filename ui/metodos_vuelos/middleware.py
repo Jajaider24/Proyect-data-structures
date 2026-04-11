@@ -127,6 +127,9 @@ def process_queue(limite):
         print(f"Error HTTP {e.status_code}: {e.detail}")
         print("Payload error:", e.payload)
         return None
+    
+def get_list_queue():
+    return skybalance.list_queue()
 
 def render_information():
     response = skybalance.get_render_data_compare()

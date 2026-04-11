@@ -183,7 +183,10 @@ def build_compare_view(page):
 				gradient=ft.LinearGradient(
 					begin=ft.Alignment.BOTTOM_CENTER,
 					end=ft.Alignment.TOP_CENTER,
-					colors=[ft.Colors.WHITE, ft.Colors.LIGHT_BLUE_100],
+					colors=[
+						ft.Colors.GREY,
+						ft.Colors.LIGHT_BLUE,
+					],
 				),
 				content=ft.Column(
 					expand=True,
@@ -214,6 +217,7 @@ def build_compare_view(page):
 									padding=10,
 									content=ft.Column(
 										expand=True,
+										scroll=ft.ScrollMode.ALWAYS,
 										controls=[
 											avl_title,
 											avl_summary,
@@ -231,6 +235,7 @@ def build_compare_view(page):
 									padding=10,
 									content=ft.Column(
 										expand=True,
+										scroll=ft.ScrollMode.ALWAYS,
 										controls=[
 											bst_title,
 											bst_summary,
