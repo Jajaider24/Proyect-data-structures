@@ -26,7 +26,7 @@ class FlightRecord:
     final_price: float = 0.0
     is_critical: bool = False
     depth: int = 0
-    height: int = 1
+    height: int = 0
     balance_factor: int = 0
     critical_penalty_rate: float = 0.25
 

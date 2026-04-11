@@ -460,6 +460,8 @@ class BST:
     # -------------------------------------------------------------------------
     def height(self) -> int:
         """Altura del árbol completo."""
+        if self.root is None:
+            return 0
         return self._compute_height(self.root)
 
     def _compute_height(self, node: Optional[TreeNode]) -> int:
@@ -467,11 +469,11 @@ class BST:
         Calcula la altura de un nodo.
 
         Convención usada:
-        - nodo None -> altura 0
-        - hoja -> altura 1
+        - nodo None -> altura -1
+        - hoja -> altura 0
         """
         if node is None:
-            return 0
+            return -1
         return 1 + max(self._compute_height(node.left), self._compute_height(node.right))
 
     def leaf_count(self) -> int:
@@ -518,7 +520,7 @@ class BST:
 
         def _walk(node: Optional[TreeNode], depth: int) -> int:
             if node is None:
-                return 0
+                return -1
 
             left_height = _walk(node.left, depth + 1)
             right_height = _walk(node.right, depth + 1)

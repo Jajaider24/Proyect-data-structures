@@ -4,7 +4,7 @@ from flet import canvas
 from metodos_vuelos import middleware
 
 
-NODE_RADIUS = 34
+NODE_RADIUS = 36
 TOP_MARGIN = 40
 LEFT_MARGIN = 50
 EDGE_SPACING = 80

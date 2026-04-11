@@ -123,11 +123,11 @@ class AVL(BST):
         Retorna la altura almacenada de un nodo.
 
         Convención:
-        - None -> 0
-        - hoja -> 1
+        - None -> -1
+        - hoja -> 0
         """
         if node is None:
-            return 0
+            return -1
         return node.flight.height
 
     def _balance_factor(self, node: Optional[TreeNode]) -> int:
@@ -150,7 +150,7 @@ class AVL(BST):
         La profundidad y la criticidad se recalculan globalmente después.
         """
         if node is None:
-            return 0
+            return -1
 
         left_height = self._height(node.left)
         right_height = self._height(node.right)
@@ -606,7 +606,7 @@ class AVL(BST):
 
         def _audit(node: Optional[TreeNode]) -> int:
             if node is None:
-                return 0
+                return -1
 
             left_height = _audit(node.left)
             right_height = _audit(node.right)
@@ -633,6 +633,8 @@ class AVL(BST):
             return computed_height
 
         overall_height = _audit(self.root)
+        if self.root is None:
+            overall_height = 0
         bst_ok = self.validate_bst_property()
 
         if not bst_ok:
