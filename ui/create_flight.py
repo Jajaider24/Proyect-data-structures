@@ -6,6 +6,50 @@ def PanelForms(page):
     async def open_avl(e):
         await page.push_route("/panelavl")
 
+    confirm_dialog = ft.AlertDialog(
+        modal=True,
+        title=titulo,
+        bgcolor = ft.Colors.GREEN,
+        actions=[
+            ft.TextButton("Aceptar", style = ft.ButtonStyle(ft.Colors.BLACK), on_click=lambda e: page.pop_dialog()),
+        ],
+    )
+
+    def send_datos(e):
+        try:
+            datos = {
+                'codigo': codigo.value,
+                'origen': origen.value,
+                'destino': destino.value,
+                'horaSalida': hora.value,
+                'precioBase': precio.value,
+                'pasajeros': pasajeros.value,
+                'prioridad': prioridad.value,
+                'promocion': promocion.value,
+                'alerta': alerta.value,
+            }
+            middleware.crear_vuelo(datos)
+            limpiar_campos()
+            titulo.value = "Vuelo Creado Correctamente"
+            confirm_dialog.bgcolor = ft.Colors.GREEN
+            page.show_dialog(confirm_dialog)
+        except Exception as e: 
+            error = str(f"Error al procesar el vuelo: {e}")
+            titulo.value = error
+            confirm_dialog.bgcolor = ft.Colors.RED
+            page.show_dialog(confirm_dialog)
+        
+
+    def limpiar_campos():
+        codigo.value = ''
+        origen.value = ''
+        destino.value = ''
+        hora.value = ''
+        precio.value = ''
+        pasajeros.value = ''
+        prioridad.value = ''
+        promocion.value = ''
+        alerta.value = False
     # Contenedor Izquierdo (70%) y Derecho (30%)
     return ft.View(
         route="/formpanel",
@@ -82,6 +126,8 @@ codigo = ft.TextField(label="Código del Vuelo",
             hint_text="Ingrese el código", 
             hint_style=ft.TextStyle(color=ft.Colors.BLACK))
 
+titulo=ft.Text("", color = ft.Colors.BLACK, weight=ft.FontWeight.BOLD)
+
 origen = ft.TextField(label="Ciudad de Origen", 
         label_style = ft.TextStyle(color = ft.Colors.BLACK, weight=ft.FontWeight.BOLD),
         cursor_color = ft.Colors.BLACK, 
@@ -153,29 +199,3 @@ promocion = ft.TextField(label="Promoción",
         hint_style=ft.TextStyle(color=ft.Colors.BLACK))
 
 alerta = ft.Switch(label="   Alerta", value=False, label_text_style=ft.TextStyle(color = ft.Colors.BLACK, size = 15))
-
-def send_datos(e):
-    datos = {
-        'codigo': codigo.value,
-        'origen': origen.value,
-        'destino': destino.value,
-        'horaSalida': hora.value,
-        'precioBase': precio.value,
-        'pasajeros': pasajeros.value,
-        'prioridad': prioridad.value,
-        'promocion': promocion.value,
-        'alerta': alerta.value,
-    }
-    limpiar_campos()
-    print(middleware.crear_vuelo(datos) )
-
-def limpiar_campos():
-    codigo.value = ''
-    origen.value = ''
-    destino.value = ''
-    hora.value = ''
-    precio.value = ''
-    pasajeros.value = ''
-    prioridad.value = ''
-    promocion.value = ''
-    alerta.value = False

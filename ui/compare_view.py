@@ -204,7 +204,7 @@ def build_compare_view(page):
 								ft.Row(
 									controls=[
 										ft.Button("Actualizar", on_click=refresh_compare_view),
-										ft.TextButton("Volver", on_click=open_menu),
+										ft.TextButton("Volver", style = ft.ButtonStyle(color=ft.Colors.BLACK), on_click=open_menu),
 									]
 								),
 							],

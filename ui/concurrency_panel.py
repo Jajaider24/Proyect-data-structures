@@ -210,6 +210,51 @@ def PanelConcurrency(page):
             middleware.process_queue(1)
             refresh_tree()
             await asyncio.sleep(5)
+    
+    confirm_dialog = ft.AlertDialog(
+        modal=True,
+        title=titulo,
+        bgcolor = ft.Colors.GREEN,
+        actions=[
+            ft.TextButton("Aceptar", style = ft.ButtonStyle(ft.Colors.BLACK), on_click=lambda e: page.pop_dialog()),
+        ],
+    )
+
+    def send_to_queue():
+        try:
+            datos = {
+                'code': codigo.value,
+                'origin': origen.value,
+                'destination': destino.value,
+                'hour': hora.value,
+                'price': precio.value,
+                'passengers': pasajeros.value,
+                'priority': prioridad.value,
+                'discount': promocion.value,
+                'alert': alerta.value,
+            }
+            middleware.enqueue(datos)
+            limpiar_campos()
+            titulo.value = "Vuelo Agregado Correctamente a la Cola"
+            confirm_dialog.bgcolor = ft.Colors.GREEN
+            page.show_dialog(confirm_dialog)
+        except Exception as e:
+            error = str(f"Error al Encolar el Vuelo: {e}")
+            titulo.value = error
+            confirm_dialog.bgcolor = ft.Colors.RED
+            page.show_dialog(confirm_dialog)
+    
+    def limpiar_campos():
+        codigo.value = ''
+        origen.value = ''
+        destino.value = ''
+        hora.value = ''
+        precio.value = ''
+        pasajeros.value = ''
+        prioridad.value = ''
+        promocion.value = ''
+        alerta.value = False
+
 
     # Contenedor Izquierdo (70%) y Derecho (30%)
     return ft.View(
@@ -372,17 +417,4 @@ alerta = ft.Switch(label="   Alerta",
                     value=False, 
                     label_text_style=ft.TextStyle(color = ft.Colors.BLACK, size = 15))
 
-def send_to_queue():
-    datos = {
-        'code': codigo.value,
-        'origin': origen.value,
-        'destination': destino.value,
-        'hour': hora.value,
-        'price': precio.value,
-        'passengers': pasajeros.value,
-        'priority': prioridad.value,
-        'discount': promocion.value,
-        'alert': alerta.value,
-    }
-    middleware.enqueue(datos)
-
+titulo=ft.Text("", color = ft.Colors.BLACK, weight=ft.FontWeight.BOLD)

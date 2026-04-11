@@ -23,10 +23,8 @@ def crear_vuelo(datos):
     promocion = datos['promocion']
     alerta = datos['alerta']
     flight = FlightFormData(codigo, origen, destino, hora_salida, precio_base, pasajeros, prioridad, promocion, alerta)
-    try:
-        skybalance.create_flight(flight.to_api_payload())
-    except Exception as e:
-        print("No se ha logrado Procesar el vuelo: ", e)
+    skybalance.create_flight(flight.to_api_payload())
+
 
 def send_path_information(datos):
     data = FilePathFormData(datos)

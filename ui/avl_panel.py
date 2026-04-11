@@ -329,7 +329,7 @@ def PanelAVL(page):
         max_lines=18,
         width=560,
         border_color=ft.Colors.BLUE,
-        text_style=ft.TextStyle(color=ft.Colors.BLACK),
+        text_style=ft.TextStyle(color=ft.Colors.WHITE),
     )
 
     metrics_modal = ft.AlertDialog(
@@ -447,7 +447,7 @@ def PanelAVL(page):
                 middleware.save_version(default_name, sobreescribir.value)
 
     nombre = ft.TextField(label = "Nombre de la Version", hint_text = "Ingrese el Nombre")
-    sobreescribir = ft.Switch(label="Sobreescribir", value=False, label_text_style=ft.TextStyle(color = ft.Colors.BLACK, size = 15))
+    sobreescribir = ft.Switch(label="Sobreescribir", value=False, label_text_style=ft.TextStyle(color = ft.Colors.WHITE, size = 15))
     
     save_modal = ft.AlertDialog(
         modal=True,
