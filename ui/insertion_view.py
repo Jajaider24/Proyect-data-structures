@@ -12,6 +12,23 @@ def InsertionView(page):
         try:
             datos = vars(files[0])
             middleware.send_path_information(datos['path'])
+            result = middleware.set_critical_depth_limit(critical_depth_input.value)
+
+            if result is None:
+                page.snack_bar = ft.SnackBar(
+                    ft.Text("Arbol cargado, pero no se pudo aplicar la profundidad critica"),
+                    bgcolor=ft.Colors.ORANGE_400,
+                )
+            else:
+                page.snack_bar = ft.SnackBar(
+                    ft.Text(
+                        f"Arbol cargado con profundidad critica: {result.get('critical_depth_limit')}"
+                    ),
+                    bgcolor=ft.Colors.GREEN_400,
+                )
+
+            page.snack_bar.open = True
+            page.update()
         except:
             print("No se ha seleccionado ningún archivo")
         finally:
@@ -44,7 +61,7 @@ def InsertionView(page):
 
     insertionButton = ft.Button( # Usamos ElevatedButton para que acepte el bgcolor del style
                             "Árbol a Insertar",
-                            width=200,
+                            width=260,
                             height=50,
                             style=button_style,
                             on_click=handle_pick_files
@@ -81,7 +98,7 @@ def InsertionView(page):
                         ft.Button(
                             "Aplicar Profundidad Critica",
                             width=260,
-                            height=45,
+                            height=50,
                             style=button_style,
                             on_click=apply_critical_depth_limit,
                         ),
