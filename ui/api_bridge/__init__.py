@@ -1,6 +1,7 @@
 from .client import ApiClientConfig, SkyBalanceApiClient
 from .exceptions import ApiBridgeError
 from .payloads import (
+    CriticalDepthFormData,
     FilePathFormData,
     FlightFormData,
     QueueProcessFormData,
@@ -17,6 +18,7 @@ __all__ = [
     "ApiClientConfig",
     "ApiBridgeError",
     "SkyBalanceApiClient",
+    "CriticalDepthFormData",
     "FilePathFormData",
     "FlightFormData",
     "FlightFormDataUpdate",

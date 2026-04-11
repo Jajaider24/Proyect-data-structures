@@ -17,6 +17,30 @@ def InsertionView(page):
         finally:
             await open_menu(e)
 
+    critical_depth_input = ft.TextField(
+        label="Profundidad Critica",
+        width=260,
+        hint_text="Vacio = sin limite",
+    )
+
+    def apply_critical_depth_limit(e=None):
+        result = middleware.set_critical_depth_limit(critical_depth_input.value)
+        if result is None:
+            page.snack_bar = ft.SnackBar(
+                ft.Text("No se pudo actualizar la profundidad critica"),
+                bgcolor=ft.Colors.RED_400,
+            )
+            page.snack_bar.open = True
+            page.update()
+            return
+
+        page.snack_bar = ft.SnackBar(
+            ft.Text(f"Profundidad critica actualizada: {result.get('critical_depth_limit')}"),
+            bgcolor=ft.Colors.GREEN_400,
+        )
+        page.snack_bar.open = True
+        page.update()
+
 
     insertionButton = ft.Button( # Usamos ElevatedButton para que acepte el bgcolor del style
                             "Árbol a Insertar",
@@ -52,6 +76,14 @@ def InsertionView(page):
                                 weight=ft.FontWeight.BOLD
                             ),
                             margin=ft.Margin.only(bottom=100),
+                        ),
+                        critical_depth_input,
+                        ft.Button(
+                            "Aplicar Profundidad Critica",
+                            width=260,
+                            height=45,
+                            style=button_style,
+                            on_click=apply_critical_depth_limit,
                         ),
                         insertionButton,
                         ft.TextButton(

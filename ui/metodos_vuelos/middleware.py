@@ -1,5 +1,14 @@
 from api_bridge import SkyBalanceApiClient
-from api_bridge import FlightFormData, FilePathFormData, FlightFormDataUpdate, VersionFormData, ApiBridgeError, TreeCompareRenderData
+from api_bridge import (
+    ApiBridgeError,
+    CriticalDepthFormData,
+    FilePathFormData,
+    FlightFormData,
+    FlightFormDataUpdate,
+    SkyBalanceApiClient,
+    TreeCompareRenderData,
+    VersionFormData,
+)
 
 skybalance = SkyBalanceApiClient()
 
@@ -67,6 +76,42 @@ def save_version(name, overwrite):
     skybalance.save_version(save_payload.to_api_payload())
     print(skybalance.list_versions())
 
+
+def list_versions():
+    try:
+        return skybalance.list_versions()
+    except ApiBridgeError as e:
+        print(f"Error HTTP {e.status_code}: {e.detail}")
+        print("Payload error:", e.payload)
+        return None
+
+
+def restore_version(name):
+    try:
+        return skybalance.restore_version(name)
+    except ApiBridgeError as e:
+        print(f"Error HTTP {e.status_code}: {e.detail}")
+        print("Payload error:", e.payload)
+        return None
+
+
+def undo_last_action():
+    try:
+        return skybalance.undo()
+    except ApiBridgeError as e:
+        print(f"Error HTTP {e.status_code}: {e.detail}")
+        print("Payload error:", e.payload)
+        return None
+
+
+def get_metrics():
+    try:
+        return skybalance.get_metrics()
+    except ApiBridgeError as e:
+        print(f"Error HTTP {e.status_code}: {e.detail}")
+        print("Payload error:", e.payload)
+        return None
+
 def enqueue(datos):
     flight_payload = FlightFormData(datos['code'], datos['origin'], datos['destination'], 
                                     datos['hour'], datos['price'], datos['passengers'], 
@@ -91,11 +136,38 @@ def render_information():
     bst_edges = response["bst"]["edges"]
     return(avl_nodes, avl_edges, bst_nodes, bst_edges)
 
+
+def compare_metrics():
+    try:
+        return skybalance.compare_avl_vs_bst()
+    except ApiBridgeError as e:
+        print(f"Error HTTP {e.status_code}: {e.detail}")
+        print("Payload error:", e.payload)
+        return None
+
 def set_stress_mode(boolean_resp):
     return skybalance.set_stress_mode(boolean_resp)
 
+
+def set_critical_depth_limit(limit):
+    payload = CriticalDepthFormData(limit)
+    try:
+        return skybalance.set_critical_depth_limit(payload.to_api_payload()["limit"])
+    except (ApiBridgeError, ValueError) as e:
+        print("No se ha logrado actualizar la profundidad critica: ", e)
+        return None
+
 def global_rebalance():
     return skybalance.rebalance_global()
+
+
+def delete_least_profitable():
+    try:
+        return skybalance.delete_least_profitable()
+    except ApiBridgeError as e:
+        print(f"Error HTTP {e.status_code}: {e.detail}")
+        print("Payload error:", e.payload)
+        return None
 
 def audit_AVL():
     try:

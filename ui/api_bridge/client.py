@@ -51,6 +51,9 @@ class SkyBalanceApiClient:
     def get_economics(self) -> dict[str, Any]:
         return self._request("GET", "/flights/economics")
 
+    def delete_least_profitable(self) -> dict[str, Any]:
+        return self._request("POST", "/flights/delete-least-profitable")
+
     def get_audit(self) -> dict[str, Any]:
         return self._request("GET", "/flights/audit")
 
@@ -59,6 +62,9 @@ class SkyBalanceApiClient:
 
     def set_stress_mode(self, enabled: bool) -> dict[str, Any]:
         return self._request("POST", "/flights/stress-mode", body={"enabled": bool(enabled)})
+
+    def set_critical_depth_limit(self, limit: Optional[int]) -> dict[str, Any]:
+        return self._request("POST", "/flights/critical-depth-limit", body={"limit": limit})
 
     def rebalance_global(self) -> dict[str, Any]:
         return self._request("POST", "/flights/rebalance-global")

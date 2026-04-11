@@ -167,7 +167,7 @@ def send_datos(e):
         'alerta': alerta.value,
     }
     limpiar_campos()
-    middleware.crear_vuelo(datos)
+    print(middleware.crear_vuelo(datos) )
 
 def limpiar_campos():
     codigo.value = ''

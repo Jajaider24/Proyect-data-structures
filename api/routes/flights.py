@@ -3,9 +3,19 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Query
 
 from api import state
-from api.schemas import FlightPayload, FlightUpdatePayload, QueueProcessPayload, StressModePayload
+from api.schemas import (
+    CriticalDepthPayload,
+    FlightPayload,
+    FlightUpdatePayload,
+    QueueProcessPayload,
+    StressModePayload,
+)
 from controllers.audit_controller import audit_avl_tree, audit_tree_pair
-from controllers.economics_controller import calculate_tree_economics, top_profitable_flights
+from controllers.economics_controller import (
+    calculate_tree_economics,
+    least_profitable_flight,
+    top_profitable_flights,
+)
 from controllers.metrics_controller import collect_tree_metrics, compare_tree_metrics
 from models.normalization import normalize_flight_code
 from services.json_loader import flight_record_from_dict, load_trees_from_payload
@@ -173,6 +183,33 @@ def get_economics() -> dict[str, object]:
     }
 
 
+@router.post("/delete-least-profitable")
+def delete_least_profitable() -> dict[str, object]:
+    candidate = least_profitable_flight(state.avl_tree)
+    if candidate is None:
+        raise HTTPException(status_code=404, detail="No hay vuelos para eliminar")
+
+    selected_key = int(candidate["codigoNormalizado"])
+    state.undo_manager.push_snapshot(state.avl_tree, action=f"smart_delete:{selected_key}")
+
+    removed_avl = state.avl_tree.cancel_subtree(selected_key)
+    removed_bst = state.bst_tree.cancel_subtree(selected_key)
+
+    if removed_avl == 0:
+        raise HTTPException(
+            status_code=409,
+            detail="No se pudo completar la eliminacion inteligente por estado inconsistente",
+        )
+
+    return {
+        "message": "Eliminacion inteligente aplicada.",
+        "selected": candidate,
+        "removed_avl": removed_avl,
+        "removed_bst": removed_bst,
+        "metrics": collect_tree_metrics(state.avl_tree),
+    }
+
+
 @router.get("/audit")
 def get_avl_audit() -> dict[str, object]:
     return audit_avl_tree(state.avl_tree)
@@ -192,6 +229,18 @@ def toggle_stress_mode(payload: StressModePayload) -> dict[str, object]:
     return {
         "message": "Modo estres actualizado.",
         "stress_mode": state.avl_tree.stress_mode,
+        "metrics": collect_tree_metrics(state.avl_tree),
+    }
+
+
+@router.post("/critical-depth-limit")
+def set_critical_depth_limit(payload: CriticalDepthPayload) -> dict[str, object]:
+    state.avl_tree.set_critical_depth_limit(payload.limit)
+    state.bst_tree.refresh_metadata(payload.limit)
+
+    return {
+        "message": "Profundidad critica actualizada.",
+        "critical_depth_limit": payload.limit,
         "metrics": collect_tree_metrics(state.avl_tree),
     }
 

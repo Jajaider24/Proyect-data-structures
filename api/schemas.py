@@ -32,6 +32,10 @@ class StressModePayload(BaseModel):
     enabled: bool
 
 
+class CriticalDepthPayload(BaseModel):
+    limit: Optional[int] = Field(default=None, ge=0)
+
+
 class VersionPayload(BaseModel):
     name: str = Field(..., min_length=1)
     overwrite: bool = False

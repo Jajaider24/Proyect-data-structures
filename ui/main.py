@@ -7,7 +7,7 @@ from create_flight import PanelForms
 from modify_flight import ModifyPanel
 from create_flight_stress import StressForms
 from update_flight_stress import UpdatePanelStress
-from graphic_test import draw_test
+from compare_view import build_compare_view
 from metodos_vuelos import middleware
 
 def main(page: ft.Page):
@@ -113,7 +113,7 @@ def main(page: ft.Page):
 
         if page.route == "/drawpanel":
             page.views.append(
-                draw_test(page)
+                build_compare_view(page)
             )
         page.update()
         

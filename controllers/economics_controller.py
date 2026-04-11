@@ -60,5 +60,37 @@ def top_profitable_flights(tree: BST, limit: int = 5) -> list[dict[str, Any]]:
     return result
 
 
+def least_profitable_flight(tree: BST) -> dict[str, Any] | None:
+    """
+    Retorna el vuelo menos rentable aplicando desempates del proyecto:
+    1) menor rentabilidad,
+    2) mayor profundidad,
+    3) mayor codigo normalizado.
+    """
+    flights = tree.inorder()
+    if not flights:
+        return None
+
+    selected = min(
+        flights,
+        key=lambda flight: (
+            _profitability(flight),
+            -int(flight.depth),
+            -int(flight.code_num),
+        ),
+    )
+
+    return {
+        "codigo": selected.code_raw,
+        "codigoNormalizado": selected.code_num,
+        "origen": selected.origin,
+        "destino": selected.destination,
+        "pasajeros": selected.passengers,
+        "precioFinal": selected.final_price,
+        "profundidad": selected.depth,
+        "rentabilidad": round(_profitability(selected), 2),
+    }
+
+
 def recalculate_prices(tree: BST, critical_depth_limit: int | None = None) -> None:
     tree.refresh_metadata(critical_depth_limit)

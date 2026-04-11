@@ -136,11 +136,12 @@ def draw_tree(nodes, edges, pos):
     # ---------------------
     for node_id, (x, y) in pos.items():
         node = node_map[node_id]
+        node_color = ft.Colors.RED_ACCENT_700 if node.get("critical") else ft.Colors.BLACK
 
         shapes.append(
             canvas.Circle(
                 x, y, NODE_RADIUS,
-                paint=ft.Paint(color=ft.Colors.BLACK),
+                paint=ft.Paint(color=node_color),
             )
         )
 
@@ -180,6 +181,16 @@ def PanelAVL(page):
         width=canvas_width,
         height=canvas_height
     )
+
+    def refresh_tree():
+        avl_nodes_refreshed, avl_edges_refreshed, _, _ = get_render_information()
+        new_positions = compute_positions(avl_nodes_refreshed, avl_edges_refreshed)
+        new_width, new_height = compute_canvas_size(new_positions)
+
+        canvas_avl.shapes = draw_tree(avl_nodes_refreshed, avl_edges_refreshed, new_positions)
+        canvas_avl.width = new_width
+        canvas_avl.height = new_height
+        page.update()
 
     scrollable_canvas = ft.Column(
         expand=True,
@@ -242,6 +253,135 @@ def PanelAVL(page):
             page.pop_dialog()
             codigo.options = flights_code_capture()
             clean_text()
+            refresh_tree()
+
+    def apply_intelligent_delete(e=None):
+        result = middleware.delete_least_profitable()
+        if result is None:
+            return
+
+        codigo.options = flights_code_capture()
+        clean_text()
+        refresh_tree()
+
+    def undo_action(e=None):
+        result = middleware.undo_last_action()
+        if result is None:
+            return
+        codigo.options = flights_code_capture()
+        clean_text()
+        refresh_tree()
+
+    def get_version_options():
+        versions_payload = middleware.list_versions()
+        if not versions_payload:
+            return []
+
+        versions = versions_payload.get("versions", [])
+        return [
+            ft.DropdownOption(key=item.get("name", ""), text=item.get("name", ""))
+            for item in versions
+            if item.get("name")
+        ]
+
+    selected_version = ft.Dropdown(
+        label="Version",
+        width=button_width,
+        options=get_version_options(),
+    )
+
+    def open_restore_modal(e=None):
+        selected_version.options = get_version_options()
+        if not selected_version.options:
+            selected_version.value = None
+        page.show_dialog(restore_modal)
+        page.update()
+
+    def restore_selected_version(e=None):
+        if not selected_version.value:
+            return
+
+        restored = middleware.restore_version(selected_version.value)
+        if restored is None:
+            return
+
+        page.pop_dialog()
+        codigo.options = flights_code_capture()
+        clean_text()
+        refresh_tree()
+
+    restore_modal = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("Restaurar Version"),
+        content=ft.Column(controls=[selected_version], tight=True),
+        actions=[
+            ft.TextButton("CONFIRMAR", on_click=restore_selected_version),
+            ft.TextButton("SALIR", on_click=lambda e: page.pop_dialog()),
+        ],
+        actions_alignment=ft.MainAxisAlignment.END,
+    )
+
+    metrics_text = ft.TextField(
+        value="",
+        read_only=True,
+        multiline=True,
+        min_lines=10,
+        max_lines=18,
+        width=560,
+        border_color=ft.Colors.BLUE,
+        text_style=ft.TextStyle(color=ft.Colors.BLACK),
+    )
+
+    metrics_modal = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("Metricas del Arbol AVL"),
+        content=ft.Column(controls=[metrics_text], tight=True),
+        actions=[
+            ft.TextButton("Cerrar", on_click=lambda e: page.pop_dialog()),
+        ],
+        actions_alignment=ft.MainAxisAlignment.END,
+    )
+
+    def show_metrics(e=None):
+        metrics = middleware.get_metrics()
+        if metrics is None:
+            return
+
+        depth_traversal = metrics.get("depth_traversal", {})
+        rotations = metrics.get("rotations", {})
+        lines = [
+            f"Raiz: {metrics.get('root')}",
+            f"Altura: {metrics.get('height')}",
+            f"Hojas: {metrics.get('leaf_count')}",
+            f"Nodos: {metrics.get('node_count')}",
+            f"Modo Estres: {metrics.get('stress_mode', False)}",
+            "",
+            "Recorridos:",
+            f"- Preorder: {depth_traversal.get('preorder', [])}",
+            f"- Inorder: {depth_traversal.get('inorder', [])}",
+            f"- Postorder: {depth_traversal.get('postorder', [])}",
+            f"- Anchura: {metrics.get('breadth_traversal', [])}",
+        ]
+
+        if rotations:
+            lines.extend(
+                [
+                    "",
+                    "Rotaciones:",
+                    f"- LL: {rotations.get('LL', 0)}",
+                    f"- RR: {rotations.get('RR', 0)}",
+                    f"- LR: {rotations.get('LR', 0)}",
+                    f"- RL: {rotations.get('RL', 0)}",
+                    f"- Simples Izquierda: {rotations.get('simple_left', 0)}",
+                    f"- Simples Derecha: {rotations.get('simple_right', 0)}",
+                    f"- Simples Total: {rotations.get('simple_total', 0)}",
+                    f"- Cancelaciones Masivas: {rotations.get('mass_cancellations', 0)}",
+                ]
+            )
+
+        metrics_text.value = "\n".join(lines)
+        page.show_dialog(metrics_modal)
+        page.update()
     
 
     codigo=ft.Dropdown(
@@ -374,10 +514,10 @@ def PanelAVL(page):
                                 ft.Button("Modificar Vuelo", width=button_width, height=button_height, style=button_style, on_click=open_modify_form),
                                 ft.Button("Eliminar/Cancelar", width=button_width, height=button_height, style=button_style, on_click=lambda e: page.show_dialog(modal_dialog),),
                                 ft.Button("Guardar Árbol", width=button_width, height=button_height, style=button_style, on_click=lambda e: page.show_dialog(save_modal)),
-                                ft.Button("Eliminación Inteligente", width=button_width, height=button_height, style=button_style),
-                                ft.Button("Retroceso", width=button_width, height=button_height, style=button_style),
-                                ft.Button("Restaurar Versión", width=button_width, height=button_height, style=button_style),
-                                ft.Button("Metricas", width=button_width, height=button_height, style=button_style),
+                                ft.Button("Eliminación Inteligente", width=button_width, height=button_height, style=button_style, on_click=apply_intelligent_delete),
+                                ft.Button("Retroceso", width=button_width, height=button_height, style=button_style, on_click=undo_action),
+                                ft.Button("Restaurar Versión", width=button_width, height=button_height, style=button_style, on_click=open_restore_modal),
+                                ft.Button("Metricas", width=button_width, height=button_height, style=button_style, on_click=show_metrics),
                                 ft.TextButton("Volver", style = ft.ButtonStyle(ft.Colors.BLACK), on_click=open_menu)
                             ],
                         ),

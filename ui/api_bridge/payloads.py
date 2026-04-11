@@ -110,6 +110,21 @@ class StressModeFormData:
         return {"enabled": bool(self.enabled)}
 
 
+@dataclass
+class CriticalDepthFormData:
+    limit: Optional[Any] = None
+
+    def to_api_payload(self) -> dict[str, Any]:
+        if self.limit in (None, ""):
+            return {"limit": None}
+
+        parsed_limit = _to_int(self.limit, field_name="limit")
+        if parsed_limit < 0:
+            raise ValueError("limit no puede ser negativo")
+
+        return {"limit": parsed_limit}
+
+
 def _to_float(value: Any, field_name: str) -> float:
     try:
         return float(value)

@@ -135,11 +135,12 @@ def draw_tree(nodes, edges, pos):
     # ---------------------
     for node_id, (x, y) in pos.items():
         node = node_map[node_id]
+        node_color = ft.Colors.RED_ACCENT_700 if node.get("critical") else ft.Colors.BLACK
 
         shapes.append(
             canvas.Circle(
                 x, y, NODE_RADIUS,
-                paint=ft.Paint(color=ft.Colors.BLACK),
+                paint=ft.Paint(color=node_color),
             )
         )
 
