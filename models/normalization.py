@@ -6,7 +6,7 @@ import re
 
 def normalize_flight_code(code: Any) -> int:
     """
-    Convierte distintos formatos de codigo de vuelo en una clave numerica.
+    Converts various flight code formats into a numeric code.
     """
     if isinstance(code, int):
         return code

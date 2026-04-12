@@ -39,7 +39,7 @@ def _insertion_flight_payload(flight: FlightRecord) -> dict[str, Any]:
 
 def tree_to_topology_payload(tree: BST) -> dict[str, Any]:
 	"""
-	Serializa el arbol en formato TOPOLOGIA.
+	Serialize the tree in TOPOLOGY format.
 	"""
 	return {
 		"tipo": "TOPOLOGIA",
@@ -50,7 +50,7 @@ def tree_to_topology_payload(tree: BST) -> dict[str, Any]:
 
 def tree_to_insertion_payload(tree: BST) -> dict[str, Any]:
 	"""
-	Serializa el arbol en formato INSERCION (recorrido por niveles).
+	Serialize the tree in INSERT format (level-order traversal).
 	"""
 	return {
 		"tipo": "INSERCION",
@@ -61,7 +61,7 @@ def tree_to_insertion_payload(tree: BST) -> dict[str, Any]:
 
 def save_payload(payload: dict[str, Any], file_path: str | Path) -> Path:
 	"""
-	Guarda un payload JSON en disco y retorna la ruta resultante.
+	Serialize a JSON payload and save it to disk, returning the resulting path.
 	"""
 	path = Path(file_path)
 	path.parent.mkdir(parents=True, exist_ok=True)
@@ -71,7 +71,7 @@ def save_payload(payload: dict[str, Any], file_path: str | Path) -> Path:
 
 def load_payload(file_path: str | Path) -> dict[str, Any]:
 	"""
-	Carga y retorna un payload JSON desde disco.
+	Load and return a JSON payload from disk.
 	"""
 	path = Path(file_path)
 	return json.loads(path.read_text(encoding="utf-8"))
@@ -79,13 +79,13 @@ def load_payload(file_path: str | Path) -> dict[str, Any]:
 
 def save_tree_topology(tree: BST, file_path: str | Path) -> Path:
 	"""
-	Exporta y guarda el arbol en formato TOPOLOGIA.
+	Export and save the tree in TOPOLOGIA format.
 	"""
 	return save_payload(tree_to_topology_payload(tree), file_path)
 
 
 def save_tree_insertion(tree: BST, file_path: str | Path) -> Path:
 	"""
-	Exporta y guarda el arbol en formato INSERCION.
+	Export and save the tree in INSERT format.
 	"""
 	return save_payload(tree_to_insertion_payload(tree), file_path)

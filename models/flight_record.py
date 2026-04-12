@@ -9,7 +9,7 @@ from models.normalization import normalize_flight_code
 @dataclass
 class FlightRecord:
     """
-    Representa toda la informacion de negocio asociada a un vuelo.
+    It contains all the business information associated with a flight.
     """
 
     code_raw: Any

@@ -17,7 +17,7 @@ class StoredVersion:
 
 class VersionManager:
 	"""
-	Versionado manual del arbol: guardar, listar, restaurar y eliminar.
+	Manual versioning of the tree: save, list, restore, and delete.
 	"""
 
 	def __init__(self) -> None:

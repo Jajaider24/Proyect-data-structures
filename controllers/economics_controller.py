@@ -62,10 +62,10 @@ def top_profitable_flights(tree: BST, limit: int = 5) -> list[dict[str, Any]]:
 
 def least_profitable_flight(tree: BST) -> dict[str, Any] | None:
     """
-    Retorna el vuelo menos rentable aplicando desempates del proyecto:
-    1) menor rentabilidad,
-    2) mayor profundidad,
-    3) mayor codigo normalizado.
+    Return the least profitable flight by applying the project's tie-breaking criteria:
+    1) lowest profitability,
+    2) greatest depth,
+    3) highest normalized code.
     """
     flights = tree.inorder()
     if not flights:

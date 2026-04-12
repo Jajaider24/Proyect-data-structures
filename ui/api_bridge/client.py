@@ -17,7 +17,7 @@ class ApiClientConfig:
 
 
 class SkyBalanceApiClient:
-    """Cliente HTTP para consumir el backend FastAPI desde la UI."""
+    """HTTP client for accessing the FastAPI backend from the UI."""
 
     def __init__(self, config: Optional[ApiClientConfig] = None) -> None:
         self.config = config or ApiClientConfig()
@@ -99,7 +99,7 @@ class SkyBalanceApiClient:
         return self._request("POST", "/trees/export/insertion-file", body=payload)
 
     def get_render_data_compare(self) -> dict[str, Any]:
-        """Obtiene datos de render para visualizar AVL y BST lado a lado."""
+        """Retrieves rendering data to display the AVL and BST side by side."""
         return self._request("GET", "/trees/render-data/compare")
 
     def undo(self) -> dict[str, Any]:

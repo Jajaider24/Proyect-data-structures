@@ -15,7 +15,7 @@ class UndoSnapshot:
 
 class UndoManager:
 	"""
-	Maneja un historial de snapshots topologicos para deshacer cambios.
+	It maintains a history of topological snapshots to undo changes.
 	"""
 
 	def __init__(self, max_history: int = 100) -> None:

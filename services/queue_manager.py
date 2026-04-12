@@ -16,7 +16,7 @@ class QueuedInsertion:
 
 class InsertionQueueManager:
 	"""
-	Cola FIFO para programar y procesar inserciones de vuelos.
+	FIFO queue for scheduling and processing flight insertions.
 	"""
 
 	def __init__(self) -> None:

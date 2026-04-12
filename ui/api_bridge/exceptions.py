@@ -4,7 +4,7 @@ from typing import Any, Optional
 
 
 class ApiBridgeError(Exception):
-    """Error controlado para respuestas HTTP no exitosas o fallos de red."""
+    """Handling HTTP errors and network failures."""
 
     def __init__(self, status_code: int, detail: str, payload: Optional[Any] = None) -> None:
         super().__init__(detail)

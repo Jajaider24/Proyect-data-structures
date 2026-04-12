@@ -3,35 +3,35 @@ from __future__ import annotations
 """
 core/avl.py
 
-Implementación completa de un árbol AVL para el proyecto SkyBalance AVL.
+Complete implementation of an AVL tree for the SkyBalance AVL project.
 
-¿Qué agrega este archivo frente al BST?
+What does this file offer over the BST?
 --------------------------------------
-1. Inserción con rebalanceo automático.
-2. Eliminación con rebalanceo automático.
-3. Rotaciones simples y dobles:
+1. Insertion with automatic rebalancing.
+2. Deletion with automatic rebalancing.
+3. Single and double rotations:
    - LL
    - RR
    - LR
    - RL
-4. Modo estrés:
-   - permite operar sin balancear inmediatamente.
-5. Rebalanceo global:
-   - útil cuando se sale del modo estrés.
-6. Métricas de rotaciones.
-7. Auditoría básica de la propiedad AVL.
+4. Stress mode:
+   - allows operation without immediate rebalancing.
+5. Global rebalancing:
+   - useful when exiting stress mode.
+6. Rotation metrics.
+7. Basic audit of the AVL property.
 
-IMPORTANTE
+IMPORTANT
 ----------
-Aunque internamente vamos actualizando alturas y balances de forma local,
-al final de cada operación se llama `refresh_metadata()` para recalcular:
-- profundidad,
-- altura,
-- factor de equilibrio,
-- criticidad por profundidad,
-- precio final.
+Although we internally update heights and balances locally,
+at the end of each operation, `refresh_metadata()` is called to recalculate:
+- depth,
+- height,
+- balance factor,
+- criticality by depth,
+- final price.
 
-Esto deja el árbol consistente con las reglas del proyecto.
+This ensures the tree remains consistent with the project rules.
 """
 
 from typing import Any, Optional
@@ -43,27 +43,27 @@ from models.nodes import TreeNode
 
 class AVL(BST):
     """
-    Árbol AVL.
+    AVL Tree.
 
-    Un AVL es un BST auto-balanceado en el que, para cada nodo,
-    la diferencia entre la altura del subárbol izquierdo y derecho
-    debe permanecer en el rango [-1, 0, 1].
+    An AVL tree is a self-balancing BST in which, for each node,
+    the difference between the heights of the left and right subtrees
+    must remain within the range [-1, 0, 1].
 
-    En este proyecto, la clave de comparación sigue siendo el código
-    normalizado del vuelo (`flight.code_num`).
+    In this project, the comparison key remains the
+    normalized flight code (`flight.code_num`).
     """
 
     def __init__(self, critical_depth_limit: Optional[int] = None) -> None:
         super().__init__()
 
-        # Límite opcional para marcar nodos críticos por profundidad.
+        # Optional limit for marking critical nodes by depth.
         self.critical_depth_limit: Optional[int] = critical_depth_limit
 
-        # Cuando stress_mode=True, el árbol permite inserciones/eliminaciones
-        # sin rebalancear automáticamente.
+        # When stress_mode=True, the tree allows insertions/deletions
+        # without automatically rebalancing.
         self.stress_mode: bool = False
 
-        # Métricas de rotación por tipo de caso AVL.
+        # Rotation metrics by AVL case type.
         self.rotation_case_counts: dict[str, int] = {
             "LL": 0,
             "RR": 0,
@@ -71,60 +71,60 @@ class AVL(BST):
             "RL": 0,
         }
 
-        # Conteo de rotaciones simples ejecutadas realmente.
-        # Una rotación doble LR o RL consume dos rotaciones simples.
+        # Count of simple rotations executed.
+        # A double rotation (LR or RL) consumes two simple rotations.
         self.simple_rotation_counts: dict[str, int] = {
             "left": 0,
             "right": 0,
         }
 
-        # Conteo de cancelaciones masivas.
+        # Count of mass cancellations.
         self.mass_cancellations: int = 0
 
     # -------------------------------------------------------------------------
-    # Configuración del árbol
+    # Tree Configuration
     # -------------------------------------------------------------------------
     def set_stress_mode(self, enabled: bool) -> None:
         """
-        Activa o desactiva el modo estrés.
+        Enable or disable stress mode.
 
-        Cuando está activado:
-        - el árbol sigue siendo un BST correcto,
-        - pero NO se rebalancea después de cada operación.
+        When enabled:
+        - the tree remains a valid BST,
+        - but it is NOT rebalanced after each operation.
 
-        Esto reproduce el requisito del proyecto donde el sistema puede
-        degradarse temporalmente antes de aplicar un rebalanceo global.
+        This replicates the project requirement where the system may
+        temporarily degrade before a global rebalance is performed.
         """
         self.stress_mode = enabled
         self.refresh_metadata()
 
     def set_critical_depth_limit(self, limit: Optional[int]) -> None:
         """
-        Actualiza la profundidad crítica y recalcula todo el árbol.
+        Updates the critical depth limit and recalculates the entire tree.
         """
         self.critical_depth_limit = limit
         self.refresh_metadata()
 
     def refresh_metadata(self, critical_depth_limit: Optional[int] = None) -> None:
         """
-        Recalcula metadatos estructurales y de negocio.
+        Recalculate structural and business metadata.
 
-        Si se pasa `critical_depth_limit`, además se actualiza el valor interno.
+        If `critical_depth_limit` is passed, the internal value is also updated.
         """
         if critical_depth_limit is not None:
             self.critical_depth_limit = critical_depth_limit
         super().refresh_metadata(self.critical_depth_limit)
 
     # -------------------------------------------------------------------------
-    # Helpers de altura y balance
+    # Height and balance aids
     # -------------------------------------------------------------------------
     def _height(self, node: Optional[TreeNode]) -> int:
         """
-        Retorna la altura almacenada de un nodo.
+        Returns the stored height of a node.
 
-        Convención:
+        Convention:
         - None -> -1
-        - hoja -> 0
+        - leaf -> 0
         """
         if node is None:
             return -1
@@ -132,9 +132,9 @@ class AVL(BST):
 
     def _balance_factor(self, node: Optional[TreeNode]) -> int:
         """
-        Calcula el factor de equilibrio de un nodo.
+        Calculate the balance factor of a node.
 
-        factor = altura(izquierda) - altura(derecha)
+        factor = height(left) - height(right)
         """
         if node is None:
             return 0
@@ -142,12 +142,12 @@ class AVL(BST):
 
     def _update_node_metrics_local(self, node: Optional[TreeNode]) -> int:
         """
-        Recalcula localmente la altura y el balance de un nodo.
+        Recalculates the height and balance of a node locally.
 
-        OJO:
-        Este método NO actualiza profundidad ni criticidad.
-        Es solo para que las rotaciones y el rebalanceo local funcionen.
-        La profundidad y la criticidad se recalculan globalmente después.
+        NOTE:
+        This method does NOT update depth or criticality.
+        It is only intended to ensure that rotations and local rebalancing work properly.
+        Depth and criticality are recalculated globally afterward.
         """
         if node is None:
             return -1
@@ -159,13 +159,13 @@ class AVL(BST):
         return node.flight.height
 
     # -------------------------------------------------------------------------
-    # Rotaciones AVL
+    # Rotations AVL
     # -------------------------------------------------------------------------
     def _rotate_left(self, pivot: TreeNode) -> TreeNode:
         """
-        Rotación simple a la izquierda.
+        Simple left rotation.
 
-        Se usa típicamente para corregir un caso RR.
+        It is typically used to correct a right-right (RR) case.
 
               pivot                    new_root
                 \                       /    \
@@ -173,7 +173,7 @@ class AVL(BST):
                /    \                /   \
               B      C              A     B
              
-        donde A es el hijo izquierdo de pivot.
+        where A is the left child of pivot.
         """
         new_root = pivot.right
         if new_root is None:
@@ -181,18 +181,18 @@ class AVL(BST):
 
         transferred_subtree = new_root.left
 
-        # 1. Reacomodar el subárbol transferido.
+        # 1. Rearrange the transferred subtree.
         pivot.right = transferred_subtree
         if transferred_subtree is not None:
             transferred_subtree.parent = pivot
 
-        # 2. Subir new_root y bajar pivot.
+        # 2. Lift new_root and lower pivot.
         new_root.left = pivot
         parent = pivot.parent
         pivot.parent = new_root
         new_root.parent = parent
 
-        # 3. Enlazar el nuevo subárbol con el abuelo.
+        # 3. Link the new subtree to the grandparent.
         if parent is None:
             self.root = new_root
         elif parent.left == pivot:
@@ -200,7 +200,7 @@ class AVL(BST):
         else:
             parent.right = new_root
 
-        # 4. Actualizar alturas/balances locales de abajo hacia arriba.
+        # 4. Update heights/balances locally from bottom to top.
         self._update_node_metrics_local(pivot)
         self._update_node_metrics_local(new_root)
 
@@ -209,9 +209,9 @@ class AVL(BST):
 
     def _rotate_right(self, pivot: TreeNode) -> TreeNode:
         """
-        Rotación simple a la derecha.
+        Simple right rotation.
 
-        Se usa típicamente para corregir un caso LL.
+        It is typically used to correct a left-left (LL) case.
 
                 pivot                 new_root
                 /                       /    \
@@ -225,18 +225,18 @@ class AVL(BST):
 
         transferred_subtree = new_root.right
 
-        # 1. Reacomodar el subárbol transferido.
+        # 1. Reorganize the transferred subtree.
         pivot.left = transferred_subtree
         if transferred_subtree is not None:
             transferred_subtree.parent = pivot
 
-        # 2. Subir new_root y bajar pivot.
+        # 2. Lift new_root and lower pivot.
         new_root.right = pivot
         parent = pivot.parent
         pivot.parent = new_root
         new_root.parent = parent
 
-        # 3. Enlazar el nuevo subárbol con el abuelo.
+        # 3. Link the new subtree to the grandparent.
         if parent is None:
             self.root = new_root
         elif parent.left == pivot:
@@ -244,7 +244,7 @@ class AVL(BST):
         else:
             parent.right = new_root
 
-        # 4. Actualizar alturas/balances locales.
+        # 4. Update heights/balances locally.
         self._update_node_metrics_local(pivot)
         self._update_node_metrics_local(new_root)
 
@@ -252,97 +252,97 @@ class AVL(BST):
         return new_root
 
     # -------------------------------------------------------------------------
-    # Lógica central de rebalanceo
+    # Core rebalancing logic
     # -------------------------------------------------------------------------
     def _rebalance_at(self, node: TreeNode) -> TreeNode:
         """
-        Rebalancea un nodo concreto si está desbalanceado.
+        Rebalance a specific node if it is unbalanced.
 
-        Casos cubiertos:
-        - LL: rotación derecha
-        - RR: rotación izquierda
-        - LR: izquierda sobre hijo izquierdo y luego derecha
-        - RL: derecha sobre hijo derecho y luego izquierda
+        Cases covered:
+        - LL: right rotation
+        - RR: left rotation
+        - LR: left rotation on the left child, followed by right rotation
+        - RL: right rotation on the right child, followed by left rotation
 
         Returns
         -------
         TreeNode
-            Nueva raíz del subárbol rebalanceado.
+            New root of the rebalanced subtree.
         """
-        # Aseguramos que hijos y nodo actual tengan alturas recientes.
+        # We ensure that children and the current node have up-to-date heights.
         self._update_node_metrics_local(node.left)
         self._update_node_metrics_local(node.right)
         self._update_node_metrics_local(node)
 
         bf = self._balance_factor(node)
 
-        # Caso pesado a la izquierda.
+        # Case heavy on the left.
         if bf > 1:
             left_bf = self._balance_factor(node.left)
 
-            # Caso LL -> rotación simple a la derecha.
+            # Case LL -> simple right rotation.
             if left_bf >= 0:
                 self.rotation_case_counts["LL"] += 1
                 return self._rotate_right(node)
 
-            # Caso LR -> izquierda en hijo izquierdo + derecha en nodo.
+            # Case LR -> left rotation on the left child, followed by right rotation.
             self.rotation_case_counts["LR"] += 1
             if node.left is None:
                 raise RuntimeError("Caso LR inválido: el nodo no tiene hijo izquierdo.")
             self._rotate_left(node.left)
             return self._rotate_right(node)
 
-        # Caso pesado a la derecha.
+        # Heavy on the right.
         if bf < -1:
             right_bf = self._balance_factor(node.right)
 
-            # Caso RR -> rotación simple a la izquierda.
+            # Case RR -> simple left rotation.
             if right_bf <= 0:
                 self.rotation_case_counts["RR"] += 1
                 return self._rotate_left(node)
 
-            # Caso RL -> derecha en hijo derecho + izquierda en nodo.
+            # Case RL -> right rotation on the right child, followed by left rotation.
             self.rotation_case_counts["RL"] += 1
             if node.right is None:
                 raise RuntimeError("Caso RL inválido: el nodo no tiene hijo derecho.")
             self._rotate_right(node.right)
             return self._rotate_left(node)
 
-        # Si no estaba desbalanceado, regresa igual.
+        # If it was not unbalanced, return it as is.
         return node
 
     def _rebalance_upward_from(self, start_node: Optional[TreeNode]) -> None:
         """
-        Rebalancea desde un nodo hacia arriba hasta llegar a la raíz.
+        Rebalance from a node upward until reaching the root.
 
-        Esta es la rutina típica usada después de inserciones o eliminaciones.
+        This is the typical routine used after insertions or deletions.
         """
         current = start_node
 
         while current is not None:
-            # Recalcular localmente el nodo actual.
+            # Recalculate the current node locally.
             self._update_node_metrics_local(current)
 
-            # Si está desbalanceado, se corrige.
+            # If it is unbalanced, correct it.
             current = self._rebalance_at(current)
 
-            # Seguimos hacia el padre de la nueva raíz local.
+            # Continue towards the parent of the new local root.
             current = current.parent
 
     # -------------------------------------------------------------------------
-    # Inserción
+    # Insertion
     # -------------------------------------------------------------------------
     def insert(self, flight: Any) -> TreeNode:
         """
-        Inserta un vuelo en el AVL.
+        Insert a flight into the AVL tree.
 
-        Si el árbol está en modo normal:
-        - inserta como un BST,
-        - rebalancea desde el padre del nuevo nodo hacia arriba.
+        If the tree is in normal mode:
+        - insert as a BST,
+        - rebalance from the parent of the new node upward.
 
-        Si está en modo estrés:
-        - inserta como un BST,
-        - NO rebalancea.
+        If the tree is in stress mode:
+        - insert as a BST,
+        - DO NOT rebalance.
         """
         new_node = self._coerce_insert_input(flight)
 
@@ -379,14 +379,14 @@ class AVL(BST):
         return new_node
 
     # -------------------------------------------------------------------------
-    # Eliminación
+    # Deletion
     # -------------------------------------------------------------------------
     def delete(self, key: int) -> bool:
         """
-        Elimina un nodo por clave.
+        Delete a node by key.
 
-        En modo normal, después de la eliminación aplica rebalanceo AVL.
-        En modo estrés, solo modifica la estructura BST y recalcula métricas.
+        In normal mode, after deletion, AVL rebalancing is applied.
+        In stress mode, only the BST structure is modified and metrics are recalculated.
         """
         node = self.search(key)
         if node is None:
@@ -394,7 +394,7 @@ class AVL(BST):
 
         rebalance_points: list[Optional[TreeNode]] = []
 
-        # Caso 1 y 2: nodo con 0 o 1 hijo.
+        # Case 1 and 2: node with 0 or 1 child.
         if node.left is None:
             replacement = node.right
             rebalance_points.append(node.parent if node.parent is not None else replacement)
@@ -405,7 +405,7 @@ class AVL(BST):
             rebalance_points.append(node.parent if node.parent is not None else replacement)
             self._transplant(node, replacement)
 
-        # Caso 3: nodo con dos hijos.
+        # Case 3: node with two children.
         else:
             successor = self.min_node(node.right)
             if successor is None:
@@ -413,8 +413,8 @@ class AVL(BST):
 
             old_successor_parent = successor.parent
 
-            # Si el sucesor no es el hijo derecho inmediato,
-            # primero lo removemos de su sitio original.
+            # If the successor is not the immediate right child,
+            # first we remove it from its original position.
             if successor.parent != node:
                 self._transplant(successor, successor.right)
                 successor.right = node.right
@@ -422,7 +422,7 @@ class AVL(BST):
                     successor.right.parent = successor
                 rebalance_points.append(old_successor_parent)
 
-            # Ahora el sucesor reemplaza al nodo eliminado.
+            # The successor now replaces the deleted node.
             self._transplant(node, successor)
             successor.left = node.left
             if successor.left is not None:
@@ -440,17 +440,17 @@ class AVL(BST):
         return True
 
     # -------------------------------------------------------------------------
-    # Cancelación de subárbol
+    # Cancelation of subtree
     # -------------------------------------------------------------------------
     def cancel_subtree(self, key: int) -> int:
         """
-        Elimina un nodo con toda su descendencia.
+        Removes a node along with all its descendants.
 
-        Diferencia frente a delete():
-        - delete() conserva el resto del árbol y solo elimina un nodo.
-        - cancel_subtree() elimina la subrama completa.
+        Difference from delete():
+        - delete() preserves the rest of the tree and removes only a single node.
+        - cancel_subtree() removes the entire subtree.
 
-        Esta operación coincide con el requisito de 'cancelar vuelo' del proyecto.
+        This operation corresponds to the “cancel flight” requirement of the project.
         """
         node = self.search(key)
         if node is None:
@@ -469,14 +469,14 @@ class AVL(BST):
         return removed_count
 
     # -------------------------------------------------------------------------
-    # Rebalanceo global
+    # Overall rebalancing
     # -------------------------------------------------------------------------
     def _postorder_nodes(self, node: Optional[TreeNode]) -> list[TreeNode]:
         """
-        Retorna una lista de nodos en postorden.
+        Returns a list of nodes in postorder.
 
-        El postorden es útil para intentar reequilibrar primero los niveles
-        más profundos y luego subir hacia la raíz.
+        Postorder is useful for attempting to rebalance first the deeper levels
+        and then moving upward toward the root.
         """
         if node is None:
             return []
@@ -484,20 +484,20 @@ class AVL(BST):
 
     def rebalance_global(self) -> dict[str, int]:
         """
-        Intenta restaurar la propiedad AVL sobre todo el árbol.
+        Attempts to restore the AVL property over the entire tree.
 
-        Pensado para usarse al salir del modo estrés.
+        Designed to be used when exiting stress mode.
 
-        Estrategia:
-        - recorre nodos en postorden,
-        - detecta desbalances,
-        - aplica rotaciones en cascada,
-        - repite hasta que no haya cambios.
+        Strategy:
+        - traverse nodes in postorder,
+        - detect imbalances,
+        - apply rotations in cascade,
+        - repeat until no changes occur.
 
         Returns
         -------
         dict[str, int]
-            Resumen del costo estructural del rebalanceo global.
+            Summary of the structural cost of the global rebalance.
         """
         before_cases = self.rotation_case_counts.copy()
         before_simple = self.simple_rotation_counts.copy()
@@ -513,7 +513,7 @@ class AVL(BST):
                 "simple_right": 0,
             }
 
-        # Evitamos loops infinitos con un límite generoso.
+        # We prevent infinite loops by setting a generous limit.
         max_iterations = max(10, self.size() * 5)
         iteration = 0
 
@@ -521,11 +521,11 @@ class AVL(BST):
             iteration += 1
             changed = False
 
-            # Tomamos una fotografía en postorden del estado actual.
+            # We take a snapshot in postorder of the current state.
             nodes = self._postorder_nodes(self.root)
             for node in nodes:
-                # El nodo puede seguir existiendo, pero su posición pudo cambiar.
-                # Igual sigue siendo válido como referencia del objeto.
+                # The node may still exist, but its position could have changed.
+                # It remains valid as a reference to the object.
                 old_root_key = self.root.key if self.root is not None else None
                 old_node_parent = node.parent
                 old_node_key = node.key
@@ -538,7 +538,7 @@ class AVL(BST):
                     self._rebalance_at(node)
                     changed = True
 
-                # Esta comparación no es perfecta, pero ayuda a capturar cambios.
+                # This comparison isn't perfect, but it helps highlight changes.
                 if self.root is not None and self.root.key != old_root_key:
                     changed = True
                 if node.parent != old_node_parent:
@@ -548,7 +548,7 @@ class AVL(BST):
 
             self.refresh_metadata()
 
-            # Si ya no hubo cambios, el árbol quedó estable.
+            # If no changes occurred, the tree is now balanced.
             if not changed:
                 break
 
@@ -565,11 +565,11 @@ class AVL(BST):
         }
 
     # -------------------------------------------------------------------------
-    # Métricas y reportes
+    # Metrics and reports
     # -------------------------------------------------------------------------
     def rotation_summary(self) -> dict[str, int]:
         """
-        Retorna un resumen completo de las rotaciones acumuladas.
+        Returns a complete summary of the accumulated rotations.
         """
         return {
             **self.rotation_case_counts,
@@ -581,24 +581,24 @@ class AVL(BST):
 
     def total_rotations(self) -> int:
         """
-        Retorna el total de rotaciones simples ejecutadas.
+        Returns the total number of simple rotations executed.
         """
         return self.simple_rotation_counts["left"] + self.simple_rotation_counts["right"]
 
     # -------------------------------------------------------------------------
-    # Auditoría básica de la propiedad AVL
+    # Basic audit of the AVL property
     # -------------------------------------------------------------------------
     def audit_avl(self) -> dict[str, Any]:
         """
-        Recorre el árbol y verifica si cumple la propiedad AVL.
+        Traverses the tree and checks if it satisfies the AVL property.
 
-        Este método es muy útil para el punto del proyecto donde se exige
-        'Verificar Propiedad AVL' y reportar inconsistencias.
+        This method is very useful for the project milestone where
+        'Verify AVL Property' is required and to report inconsistencies.
 
         Returns
         -------
         dict[str, Any]
-            Reporte con validez general, errores y nodos conflictivos.
+            Report with general validity, errors and conflicting nodes.
         """
         issues: list[str] = []
         unbalanced_nodes: list[int] = []
@@ -653,7 +653,7 @@ class AVL(BST):
         }
 
     # -------------------------------------------------------------------------
-    # API de compatibilidad con el estilo del profesor
+    # API for teacher style compatibility
     # -------------------------------------------------------------------------
     def getBalanceFactor(self, node: Optional[TreeNode]) -> int:
         if node is None:
@@ -664,12 +664,12 @@ class AVL(BST):
         self.pretty_print()
 
     # -------------------------------------------------------------------------
-    # Construcción auxiliar
+    # Auxiliary construction
     # -------------------------------------------------------------------------
     @classmethod
     def from_flights(cls, flights: list[FlightRecord], critical_depth_limit: Optional[int] = None) -> "AVL":
         """
-        Construye un AVL insertando una lista de vuelos uno por uno.
+        Constructs an AVL by inserting a list of flights one by one.
         """
         tree = cls(critical_depth_limit=critical_depth_limit)
         for flight in flights:

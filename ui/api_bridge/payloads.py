@@ -171,12 +171,12 @@ def _normalize_alert(value: Any) -> str | bool:
 
 
 # ============================================================================
-# Estructuras para visualización de árboles (respuestas de render-data)
+# Tree visualization structures (render-data responses)
 # ============================================================================
 
 @dataclass
 class TreeNodeRenderData:
-	"""Representa un nodo en el formato de render para visualización."""
+	"""Represents a node in the rendering format for display."""
 	id: Any
 	label: str
 	depth: int
@@ -196,7 +196,7 @@ class TreeNodeRenderData:
 
 @dataclass
 class TreeEdgeRenderData:
-	"""Representa una arista (conexión) entre nodos."""
+	"""Represents an edge (connection) between nodes."""
 	from_node: Any
 	to_node: Any
 
@@ -210,7 +210,7 @@ class TreeEdgeRenderData:
 
 @dataclass
 class TreeRenderData:
-	"""Estructura completa de un árbol para renderizar: nodos, aristas y raíz."""
+	"""Complete structure of a tree for rendering: nodes, edges and root."""
 	nodes: list[TreeNodeRenderData]
 	edges: list[TreeEdgeRenderData]
 	root: Any
@@ -230,7 +230,7 @@ class TreeRenderData:
 
 @dataclass
 class TreeCompareRenderData:
-	"""Estructura que contiene datos de render para ambos árboles (AVL y BST)."""
+	"""Structure that contains rendering data for both trees (AVL and BST)."""
 	avl: TreeRenderData
 	bst: TreeRenderData
 

@@ -2,8 +2,8 @@ class Pila:
     def __init__(self):
         self._datos = []
 
-    # Metodo que me sirve para agregar (apilar) un dato en la pila
-    # dato: informacion a agregar
+    # Method I use to add (push) data to the stack
+    # data: information to be added
     def apilar(self, dato):
         self._datos.append(dato)
 
@@ -13,8 +13,8 @@ class Pila:
         else:
             return self._datos.pop()
 
-    # Metodo que valida si la pila esta vacia o no
-    # return: booleano => true: si esta vacia, false: si tiene elementos
+    # Method that validates if the stack is empty or not
+    # return: boolean => true: if it is empty, false: if it has elements
     def estaVacia(self):
         return len(self._datos) == 0
 

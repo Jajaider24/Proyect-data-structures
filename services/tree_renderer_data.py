@@ -13,7 +13,7 @@ def _node_label(node: TreeNode) -> str:
 
 def build_tree_renderer_data(tree: BST) -> dict[str, Any]:
 	"""
-	Convierte un arbol en una estructura simple de nodos y aristas para UI.
+	Convert a tree into a simple structure of nodes and edges for UI.
 	"""
 	if tree.root is None:
 		return {
@@ -58,7 +58,7 @@ def build_tree_renderer_data(tree: BST) -> dict[str, Any]:
 
 def build_compare_renderer_data(avl_tree: BST, bst_tree: BST) -> dict[str, Any]:
 	"""
-	Devuelve datos de render para vista comparativa AVL vs BST.
+	Returns rendering data for a comparison between AVL and BST.
 	"""
 	return {
 		"avl": build_tree_renderer_data(avl_tree),

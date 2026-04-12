@@ -6,8 +6,8 @@ class Cola:
     def __init__(self):
         self._datos = deque()
 
-    # Metodo para agregar (encolar) un dato al final de la cola
-    # dato: informacion a agregar
+    # Method for appending data to the end of the queue
+    # data: information to be appended
     def encolar(self, dato: Any):
         self._datos.append(dato)
 
@@ -17,12 +17,12 @@ class Cola:
         else:
             return self._datos.popleft()
 
-    # Metodo que valida si la cola esta vacia o no
-    # return: booleano => true: si esta vacia, false: si tiene elementos
+    # Method that validates if the queue is empty or not
+    # return: boolean => true: if it is empty, false: if it has elements
     def estaVacia(self):
         return len(self._datos) == 0
 
-    # Retorna el primer elemento que saldria de la cola (frente)
+    # Method that returns the first element that would be dequeued (front)
     def obtenerElemento(self):
         if self.estaVacia():
             raise Exception("La cola esta vacia")

@@ -41,8 +41,8 @@ def _parse_alert(value: Any) -> str:
 
 def _parse_promotion(value: Any) -> float:
 	if isinstance(value, bool):
-		# El JSON del profesor usa promocion como booleano en modo insercion.
-		# En el modelo interno lo representamos como valor numerico.
+		# The teacher's JSON uses `promocion` as a boolean in insert mode.
+        # In the internal model, we represent it as a numeric value.
 		return 0.0
 
 	if value is None:
@@ -56,7 +56,7 @@ def _parse_promotion(value: Any) -> float:
 
 def flight_record_from_dict(raw_flight: dict[str, Any]) -> FlightRecord:
 	"""
-	Convierte un objeto de vuelo JSON a FlightRecord estandar del proyecto.
+	Converts a JSON flight object to a standard FlightRecord.
 	"""
 	code_raw = raw_flight.get("codigo", raw_flight.get("code"))
 	if code_raw is None:
@@ -76,7 +76,7 @@ def flight_record_from_dict(raw_flight: dict[str, Any]) -> FlightRecord:
 		alert=_parse_alert(raw_flight.get("alerta", "NORMAL")),
 	)
 
-	# Si vienen metadatos calculados en topologia, se preservan de forma inicial.
+	# If topology-based metadata is provided, it is preserved by default.
 	if "precioFinal" in raw_flight:
 		record.final_price = float(raw_flight.get("precioFinal", record.final_price))
 	if "esCritico" in raw_flight:
@@ -152,7 +152,7 @@ def _load_topology_mode(payload: dict[str, Any], critical_depth_limit: Optional[
 
 def load_trees_from_payload(payload: dict[str, Any], critical_depth_limit: Optional[int] = None) -> dict[str, Any]:
 	"""
-	Carga AVL y BST desde un payload JSON en modo INSERCION o TOPOLOGIA.
+	Load AVL and BST from a JSON payload in INSERT or TOPOLOGY mode.
 	"""
 	if not isinstance(payload, dict):
 		raise ValueError("El contenido JSON debe ser un objeto en la raiz.")
@@ -179,7 +179,7 @@ def load_trees_from_payload(payload: dict[str, Any], critical_depth_limit: Optio
 
 def load_trees_from_json_file(file_path: str | Path, critical_depth_limit: Optional[int] = None) -> dict[str, Any]:
 	"""
-	Lee un archivo JSON y reconstruye los arboles segun su modo.
+	Load AVL and BST from a JSON file based on their mode.
 	"""
 	path = Path(file_path)
 	payload = json.loads(path.read_text(encoding="utf-8"))
@@ -188,7 +188,7 @@ def load_trees_from_json_file(file_path: str | Path, critical_depth_limit: Optio
 
 def restore_avl_from_topology_payload(payload: dict[str, Any], critical_depth_limit: Optional[int] = None) -> AVL:
 	"""
-	Restaura un AVL desde un snapshot topologico.
+	Restore an AVL tree from a topology snapshot.
 	"""
 	if payload.get("tipo") != "TOPOLOGIA":
 		payload = {

@@ -10,7 +10,7 @@ from models.normalization import normalize_flight_code
 @dataclass
 class TreeNode:
     """
-    Nodo de arbol para BST y AVL.
+    Tree node for BST and AVL.
     """
 
     flight: FlightRecord
@@ -66,7 +66,7 @@ class TreeNode:
 
 class Node:
     """
-    Nodo academico ligero para reutilizar codigo de clase.
+    Lightweight academic node for reusing class code.
     """
 
     def __init__(self, value: Any):

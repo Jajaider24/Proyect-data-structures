@@ -3,20 +3,20 @@ from __future__ import annotations
 """
 core/bst.py
 
-Implementación de un Árbol Binario de Búsqueda (BST) para el proyecto
-SkyBalance AVL.
+Implementation of a Binary Search Tree (BST) for the
+SkyBalance AVL project.
 
-¿Por qué construir primero el BST?
+Why build the BST first?
 --------------------------------
-Porque el BST nos sirve como base conceptual y funcional para:
-1. Reutilizar la lógica de búsqueda y recorridos.
-2. Compararlo contra el AVL cuando el JSON se cargue en modo inserción.
-3. Tener una estructura de referencia más simple para probar reglas del negocio.
+Because the BST serves as a conceptual and functional foundation for:
+1. Reusing search and traversal logic.
+2. Compare it against the AVL when JSON is loaded in insert mode.
+3. Have a simpler reference structure for testing business rules.
 
-Este archivo está pensado para ser muy didáctico:
-- Tiene comentarios amplios.
-- Separa helpers internos de métodos públicos.
-- Recalcula metadatos del árbol cuando hay cambios.
+This file is designed to be highly educational:
+- It includes extensive comments.
+- It separates internal helpers from public methods.
+- It recalculates tree metadata when changes occur.
 """
 
 from collections import deque
@@ -28,14 +28,14 @@ from models.nodes import TreeNode
 
 class BST:
     """
-    Árbol Binario de Búsqueda.
+    Binary Search Tree.
 
-    Regla principal:
-    - Todo nodo del subárbol izquierdo tiene clave menor que la del nodo actual.
-    - Todo nodo del subárbol derecho tiene clave mayor que la del nodo actual.
+    Main rule:
+    - Every node in the left subtree has a key less than the parent node's key.
+    - Every node in the right subtree has a key greater than the parent node's key.
 
-    En este proyecto la clave es `flight.code_num`, es decir,
-    el código de vuelo normalizado.
+    In this project the key is `flight.code_num`, that is,
+    the normalized flight code.
     """
 
     def __init__(self) -> None:
@@ -43,10 +43,10 @@ class BST:
         self._size: int = 0
 
     # -------------------------------------------------------------------------
-    # Propiedades básicas
+    # Basic properties
     # -------------------------------------------------------------------------
     def is_empty(self) -> bool:
-        """Retorna True si el árbol no tiene nodos."""
+        """Returns True if the tree has no nodes."""
         return self.root is None
 
     def __len__(self) -> int:
@@ -54,18 +54,18 @@ class BST:
         return self._size
 
     def size(self) -> int:
-        """Devuelve la cantidad de nodos del árbol."""
+        """Returns the number of nodes in the tree."""
         return self._size
 
     # -------------------------------------------------------------------------
-    # Inserción
+    # Insertion
     # -------------------------------------------------------------------------
     def _build_placeholder_flight(self, value: Any) -> FlightRecord:
         """
-        Construye un vuelo mínimo a partir de una clave.
+        Builds a minimal flight from a key.
 
-        Se usa para compatibilidad con inserciones de estilo académico
-        (nodos basados solo en valor).
+        This is used for compatibility with academic-style insertions
+        (nodes based only on value).
         """
         return FlightRecord(
             code_raw=value,
@@ -81,13 +81,13 @@ class BST:
 
     def _coerce_insert_input(self, value: Any) -> TreeNode:
         """
-        Convierte distintos tipos de entrada en un TreeNode válido.
+        Converts various input types into a valid TreeNode.
 
-        Entradas soportadas:
+        Supported inputs:
         - FlightRecord
         - TreeNode
-        - objetos con getValue() (compatibilidad con clase Node del profesor)
-        - valores escalares (int/str/float)
+        - objects with getValue() (compatibility with the Node class from the tutorial)
+        - scalar values (int/str/float)
         """
         if isinstance(value, TreeNode):
             node = value
@@ -98,7 +98,7 @@ class BST:
         else:
             node = TreeNode(flight=self._build_placeholder_flight(value))
 
-        # Garantiza inserción limpia como nodo nuevo.
+        # Ensures clean insertion as a new node.
         node.left = None
         node.right = None
         node.parent = None
@@ -106,20 +106,20 @@ class BST:
 
     def insert(self, flight: Any) -> TreeNode:
         """
-        Inserta un vuelo en el BST.
+        Inserts a flight into the BST.
 
-        Si la clave ya existe, se lanza una excepción.
-        En el proyecto esto es útil porque los códigos de vuelo deben ser únicos.
+        If the key already exists, an exception is raised.
+        In the project, this is useful because flight codes must be unique.
 
         Parameters
         ----------
         flight : Any
-            Puede ser FlightRecord, TreeNode, Node (con getValue) o valor.
+            Can be a FlightRecord, TreeNode, Node (with getValue) or a value.
 
         Returns
         -------
         TreeNode
-            Nodo creado e insertado.
+            Node created and inserted.
         """
         new_node = self._coerce_insert_input(flight)
 
@@ -142,7 +142,7 @@ class BST:
             else:
                 raise ValueError(f"Ya existe un vuelo con clave {new_node.key}")
 
-        # parent no puede ser None aquí porque root ya existía.
+        # parent cannot be None here because root already existed.
         new_node.parent = parent
         if new_node.key < parent.key:
             parent.left = new_node
@@ -154,21 +154,21 @@ class BST:
         return new_node
 
     # -------------------------------------------------------------------------
-    # Búsqueda
+    # Search
     # -------------------------------------------------------------------------
     def search(self, key: int) -> Optional[TreeNode]:
         """
-        Busca un nodo por clave.
+        Searches for a node by key.
 
         Parameters
         ----------
         key : int
-            Clave normalizada del vuelo.
+            Standard flight code.
 
         Returns
         -------
         Optional[TreeNode]
-            El nodo si existe; de lo contrario, None.
+            The node if it exists; otherwise, None.
         """
         current = self.root
 
@@ -183,17 +183,17 @@ class BST:
         return None
 
     def contains(self, key: int) -> bool:
-        """Retorna True si la clave existe en el árbol."""
+        """Returns True if the key exists in the tree."""
         return self.search(key) is not None
 
     # -------------------------------------------------------------------------
-    # Mínimo, máximo, sucesor
+    # Minimum, maximum, successor
     # -------------------------------------------------------------------------
     def min_node(self, node: Optional[TreeNode] = None) -> Optional[TreeNode]:
         """
-        Retorna el nodo de menor clave.
+        Returns the node with the smallest key.
 
-        Si no se pasa un nodo, busca el mínimo del árbol completo.
+        If no node is passed, it searches for the minimum in the entire tree.
         """
         current = node if node is not None else self.root
         if current is None:
@@ -205,9 +205,9 @@ class BST:
 
     def max_node(self, node: Optional[TreeNode] = None) -> Optional[TreeNode]:
         """
-        Retorna el nodo de mayor clave.
+        Returns the node with the largest key.
 
-        Si no se pasa un nodo, busca el máximo del árbol completo.
+        If no node is passed, it searches for the maximum in the entire tree.
         """
         current = node if node is not None else self.root
         if current is None:
@@ -219,10 +219,10 @@ class BST:
 
     def successor(self, node: TreeNode) -> Optional[TreeNode]:
         """
-        Retorna el sucesor inorder de un nodo.
+        Returns the inorder successor of a node.
 
-        El sucesor inorder es el nodo con la menor clave mayor que la actual.
-        Es muy útil para la eliminación de nodos con dos hijos.
+        The inorder successor is the node with the smallest key greater than the current.
+        It is very useful for the deletion of nodes with two children.
         """
         if node.right is not None:
             return self.min_node(node.right)
@@ -235,21 +235,21 @@ class BST:
         return parent
 
     # -------------------------------------------------------------------------
-    # Eliminación
+    # Elimination
     # -------------------------------------------------------------------------
     def delete(self, key: int) -> bool:
         """
-        Elimina un nodo por clave.
+        Deletes one node per key.
 
-        Casos clásicos de eliminación en BST:
-        1. Nodo hoja.
-        2. Nodo con un solo hijo.
-        3. Nodo con dos hijos.
+        Common cases of deletion in a BST:
+        1. Leaf node.
+        2. Node with a single child.
+        3. Node with two children.
 
         Returns
         -------
         bool
-            True si se eliminó el nodo, False si no existía.
+            True if the node was deleted, False if it didn't exist.
         """
         node = self.search(key)
         if node is None:
@@ -262,41 +262,41 @@ class BST:
 
     def _delete_node(self, node: TreeNode) -> None:
         """
-        Elimina físicamente un nodo ya localizado.
+        Deletes a node that has already been located.
 
-        Este método es interno. El método público `delete` primero busca
-        el nodo y luego llama aquí.
+        This method is internal. The public method `delete` first searches
+        for the node and then calls this method.
         """
-        # Caso 1: el nodo es hoja.
+        # Case 1: The node is a leaf.
         if node.left is None and node.right is None:
             self._transplant(node, None)
             return
 
-        # Caso 2: solo tiene hijo derecho.
+        # Case 2: The node has only a right child.
         if node.left is None:
             self._transplant(node, node.right)
             return
 
-        # Caso 2: solo tiene hijo izquierdo.
+        # Case 2: The node has only a left child.
         if node.right is None:
             self._transplant(node, node.left)
             return
 
-        # Caso 3: tiene dos hijos.
-        # Buscamos el sucesor inorder (mínimo del subárbol derecho).
+        # Case 3: The node has two children.
+        # We search for the inorder successor (minimum of the right subtree).
         successor = self.min_node(node.right)
         if successor is None:
             raise RuntimeError("No se encontró sucesor para un nodo con hijo derecho.")
 
-        # Si el sucesor no es el hijo derecho inmediato,
-        # hay que reubicar primero el subárbol del sucesor.
+        # If the successor is not the immediate legitimate child,
+        # The successor's subtree must be moved first.
         if successor.parent != node:
             self._transplant(successor, successor.right)
             successor.right = node.right
             if successor.right is not None:
                 successor.right.parent = successor
 
-        # Ahora reemplazamos el nodo por su sucesor.
+        # Now we replace the node with its successor.
         self._transplant(node, successor)
         successor.left = node.left
         if successor.left is not None:
@@ -304,16 +304,16 @@ class BST:
 
     def _transplant(self, old_node: TreeNode, new_node: Optional[TreeNode]) -> None:
         """
-        Reemplaza un subárbol por otro.
+        Replaces a subtree with another.
 
-        Este helper es la técnica clásica para simplificar la eliminación.
+        This helper is the classic technique to simplify deletion.
 
         Parameters
         ----------
         old_node : TreeNode
-            Nodo que va a ser reemplazado.
+            Node to be replaced.
         new_node : Optional[TreeNode]
-            Nuevo nodo que tomará su lugar.
+            New node that will take its place.
         """
         if old_node.parent is None:
             self.root = new_node
@@ -326,22 +326,22 @@ class BST:
             new_node.parent = old_node.parent
 
     # -------------------------------------------------------------------------
-    # Cancelación de subárbol
+    # Subtree Deletion
     # -------------------------------------------------------------------------
     def cancel_subtree(self, key: int) -> int:
         """
-        Elimina un nodo y toda su descendencia.
+        Removes a node and all its descendants.
 
-        Esta operación es diferente a delete():
-        - delete() elimina un solo nodo preservando la estructura BST.
-        - cancel_subtree() elimina el nodo completo con todos sus hijos.
+        This operation differs from delete():
+        - delete() removes a single node while preserving the BST structure.
+        - cancel_subtree() removes the entire node along with all its children.
 
-        Esto es exactamente lo que pide el proyecto cuando se 'cancela' un vuelo.
+        This is exactly what the project requires when a flight is ‘canceled’.
 
         Returns
         -------
         int
-            Cantidad de nodos eliminados.
+            Number of nodes removed.
         """
         node = self.search(key)
         if node is None:
@@ -354,16 +354,16 @@ class BST:
         return removed_count
 
     def _count_subtree_nodes(self, node: Optional[TreeNode]) -> int:
-        """Cuenta cuántos nodos hay en un subárbol."""
+        """Count the number of nodes in a subtree."""
         if node is None:
             return 0
         return 1 + self._count_subtree_nodes(node.left) + self._count_subtree_nodes(node.right)
 
     # -------------------------------------------------------------------------
-    # Recorridos
+    # Traversals
     # -------------------------------------------------------------------------
     def inorder(self) -> list[FlightRecord]:
-        """Recorrido inorder: izquierda, raíz, derecha."""
+        """Inorder traversal: left, root, right."""
         result: list[FlightRecord] = []
 
         def _traverse(node: Optional[TreeNode]) -> None:
@@ -377,7 +377,7 @@ class BST:
         return result
 
     def preorder(self) -> list[FlightRecord]:
-        """Recorrido preorder: raíz, izquierda, derecha."""
+        """Preorder traversal: root, left, right."""
         result: list[FlightRecord] = []
 
         def _traverse(node: Optional[TreeNode]) -> None:
@@ -391,7 +391,7 @@ class BST:
         return result
 
     def postorder(self) -> list[FlightRecord]:
-        """Recorrido postorder: izquierda, derecha, raíz."""
+        """Postorder traversal: left, right, root."""
         result: list[FlightRecord] = []
 
         def _traverse(node: Optional[TreeNode]) -> None:
@@ -406,9 +406,9 @@ class BST:
 
     def level_order(self) -> list[FlightRecord]:
         """
-        Recorrido por niveles (BFS).
+        Level-order traversal (BFS).
 
-        Muy útil para mostrar el árbol en interfaz o depurarlo.
+        Very useful for displaying the tree in an interface or debugging.
         """
         if self.root is None:
             return []
@@ -428,7 +428,7 @@ class BST:
         return result
 
     # -------------------------------------------------------------------------
-    # API de compatibilidad con el estilo del profesor
+    # API for teacher style compatibility
     # -------------------------------------------------------------------------
     def getRoot(self) -> Optional[TreeNode]:
         return self.root
@@ -447,37 +447,37 @@ class BST:
 
     def calculateHeight(self, node: Optional[TreeNode]) -> int:
         """
-        Altura con convención del código del profesor:
+        Height according to the teacher's code:
         - None = -1
-        - hoja = 0
+        - leaf = 0
         """
         if node is None:
             return -1
         return 1 + max(self.calculateHeight(node.left), self.calculateHeight(node.right))
 
     # -------------------------------------------------------------------------
-    # Métricas estructurales
+    # Structural metrics
     # -------------------------------------------------------------------------
     def height(self) -> int:
-        """Altura del árbol completo."""
+        """Height of the entire tree."""
         if self.root is None:
             return 0
         return self._compute_height(self.root)
 
     def _compute_height(self, node: Optional[TreeNode]) -> int:
         """
-        Calcula la altura de un nodo.
+        Calculate the height of a node.
 
-        Convención usada:
-        - nodo None -> altura -1
-        - hoja -> altura 0
+        Convention used:
+        - node None -> height -1
+        - leaf -> height 0
         """
         if node is None:
             return -1
         return 1 + max(self._compute_height(node.left), self._compute_height(node.right))
 
     def leaf_count(self) -> int:
-        """Cuenta cuántas hojas hay en el árbol."""
+        """Count the number of leaf nodes in the tree."""
         return self._leaf_count(self.root)
 
     def _leaf_count(self, node: Optional[TreeNode]) -> int:
@@ -489,9 +489,9 @@ class BST:
 
     def depth_of_key(self, key: int) -> Optional[int]:
         """
-        Retorna la profundidad de una clave.
+        Returns the depth of a key.
 
-        Profundidad de la raíz = 0.
+        Depth of the root = 0.
         """
         node = self.search(key)
         if node is None:
@@ -499,23 +499,23 @@ class BST:
         return node.flight.depth
 
     def root_key(self) -> Optional[int]:
-        """Retorna la clave de la raíz o None si el árbol está vacío."""
+        """Returns the key of the root or None if the tree is empty."""
         return self.root.key if self.root is not None else None
 
     # -------------------------------------------------------------------------
-    # Actualización de metadatos
+    # Metadata Update
     # -------------------------------------------------------------------------
     def refresh_metadata(self, critical_depth_limit: Optional[int] = None) -> None:
         """
-        Recalcula profundidad, altura, balance y criticidad para todo el árbol.
+        Recalculate depth, height, balance, and criticality for the entire tree.
 
-        Aunque el BST no se balancea como AVL, sí podemos calcular el
-        factor de balance de cada nodo como información diagnóstica.
+        Although the BST does not balance like an AVL tree, we can still calculate the
+        balance factor of each node as diagnostic information.
 
-        Este método es importante porque:
-        - el proyecto necesita profundidad y altura actualizadas,
-        - la criticidad depende de la profundidad,
-        - la exportación JSON debe reflejar el estado real del árbol.
+        This method is important because:
+        - the project needs depth and height updated,
+        - the criticality depends on the depth,
+        - the JSON export must reflect the actual state of the tree.
         """
 
         def _walk(node: Optional[TreeNode], depth: int) -> int:
@@ -538,13 +538,13 @@ class BST:
         _walk(self.root, 0)
 
     # -------------------------------------------------------------------------
-    # Validaciones
+    # Validations
     # -------------------------------------------------------------------------
     def validate_bst_property(self) -> bool:
         """
-        Verifica que se cumpla la propiedad BST en todo el árbol.
+        Verifies that the BST property is satisfied throughout the tree.
 
-        Esto es útil para depuración y pruebas unitarias.
+        This is useful for debugging and unit testing.
         """
 
         def _validate(node: Optional[TreeNode], low: Any, high: Any) -> bool:
@@ -559,13 +559,13 @@ class BST:
         return _validate(self.root, None, None)
 
     # -------------------------------------------------------------------------
-    # Exportación y representación
+    # Export and Representation
     # -------------------------------------------------------------------------
     def to_topology_dict(self) -> Optional[dict[str, Any]]:
         """
-        Exporta el árbol completo en formato jerárquico.
+        Export the entire tree in a hierarchical format.
 
-        Si el árbol está vacío, retorna None.
+        If the tree is empty, returns None.
         """
         if self.root is None:
             return None
@@ -573,18 +573,18 @@ class BST:
 
     def to_insertion_list(self) -> list[dict[str, Any]]:
         """
-        Exporta el árbol como una lista de vuelos en recorrido por niveles.
+        Export the tree as a list of flights in level-order traversal.
 
-        No reconstruye la misma topología, pero sí sirve como formato tipo
-        'lista de inserción' para pruebas o persistencia simple.
+        It does not reconstruct the same topology, but it does serve as a
+        ‘insertion list’ format for testing or simple persistence.
         """
         return [flight.to_dict() for flight in self.level_order()]
 
     def pretty_print(self) -> None:
         """
-        Imprime el árbol en consola de forma lateral.
+        Prints the tree in the console in a horizontal layout.
 
-        Útil en desarrollo antes de construir la interfaz Flet.
+        Useful during development before building the Flet interface.
         """
 
         def _print(node: Optional[TreeNode], level: int = 0, prefix: str = "R: ") -> None:
@@ -598,12 +598,12 @@ class BST:
         _print(self.root)
 
     # -------------------------------------------------------------------------
-    # Construcción auxiliar desde colecciones
+    # Auxiliary Construction from Collections
     # -------------------------------------------------------------------------
     @classmethod
     def from_flights(cls, flights: list[FlightRecord]) -> "BST":
         """
-        Construye un BST insertando una lista de vuelos uno por uno.
+        Builds a BST by inserting a list of flights one by one.
         """
         tree = cls()
         for flight in flights:
