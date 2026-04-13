@@ -436,7 +436,7 @@ def PanelAVL(page):
         )
         page.pop_dialog()
         if path_destino:
-            saved = middleware.save_tree_insertion_file(path_destino)
+            saved = middleware.save_tree_topology_file(path_destino)
             if saved is None:
                 return
 
@@ -508,6 +508,7 @@ def PanelAVL(page):
                         content=ft.Column(
                             spacing=20,
                             alignment=ft.MainAxisAlignment.CENTER,
+                            scroll = ft.ScrollMode.ALWAYS,
                             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                             controls=[
                                 ft.Button("Crear Vuelo", width=button_width, height=button_height, style=button_style, on_click=open_form),

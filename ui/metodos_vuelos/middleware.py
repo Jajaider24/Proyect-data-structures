@@ -42,6 +42,15 @@ def save_tree_insertion_file(path: str):
         print("No se ha logrado guardar el archivo de vuelos: ", e)
         return None
 
+
+def save_tree_topology_file(path: str):
+    data = FilePathFormData(path)
+    try:
+        return skybalance.export_topology_file(data.to_api_payload())
+    except Exception as e:
+        print("No se ha logrado guardar el archivo de vuelos: ", e)
+        return None
+
 def get_flight_list():
     return skybalance.list_flights()['flights']
 
@@ -182,3 +191,9 @@ def audit_AVL():
             "detail": e.detail,
             "payload": e.payload,
         }
+
+def export_topology():
+    try:
+        skybalance.export_topology_file()
+    except Exception as e:
+        print(e)

@@ -311,11 +311,6 @@ def PanelStress(page):
             f"Total: {len(unbalanced)}",
             f"Nodos: {', '.join(str(n) for n in unbalanced) if unbalanced else 'Ninguno'}",
             "",
-            "NODOS CON ALTURA INCONSISTENTE: ",
-            "",
-            f"Total: {len(invalid_heights)}",
-            f"Nodos: {', '.join(str(n) for n in invalid_heights) if invalid_heights else 'Ninguno'}",
-            "",
             "ROTACIONES ACUMULADAS: ",
             ""
             f"LL: {rotations.get('LL', 0)}",
