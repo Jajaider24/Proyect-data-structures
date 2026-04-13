@@ -3,7 +3,7 @@ import json
 from metodos_vuelos import middleware
 
 def InsertionView(page):
-    # Definimos el estilo una sola vez para reutilizarlo
+    # We define the style once so we can reuse it
     async def open_menu(e):
         await page.push_route("/")
     
@@ -59,7 +59,7 @@ def InsertionView(page):
         page.update()
 
 
-    insertionButton = ft.Button( # Usamos ElevatedButton para que acepte el bgcolor del style
+    insertionButton = ft.Button(  # We use ElevatedButton so that it adopts the background color from the style
                             "Árbol a Insertar",
                             width=260,
                             height=50,
@@ -67,14 +67,14 @@ def InsertionView(page):
                             on_click=handle_pick_files
                         )
     
-    # Retornamos un objeto View
+    # We return a View object
     return ft.View(
-        route="/insertion", # La ruta que identifica a esta página
+        route="/insertion", # The URL for this page
         padding=0,
         spacing=0,
         controls=[
             ft.Container(
-                expand=True, # Ocupa todo el alto y ancho
+                expand=True, # Occupies the entire height and width
                 gradient=ft.LinearGradient(
                     begin=ft.Alignment.BOTTOM_CENTER,
                     end=ft.Alignment.TOP_CENTER,

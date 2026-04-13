@@ -145,13 +145,13 @@ def UpdatePanelStress(page):
         promocion.value = ''
         alerta.value = False
 
-    # Contenedor Izquierdo (70%) y Derecho (30%)
+    # Left container (70%) and right container (30%)
     return ft.View(
         route="/updateflightstress",
-        padding=0, # Elimina bordes externos de la ventana
+        padding=0, # Removes the outer window margins
         controls=[
             ft.Row(
-                expand=True, # Permite que los contenedores usen expand=7 y expand=3
+                expand=True, # Allows the containers to use expand=7 and expand=3
                 spacing=0,
                 controls=[
                     ft.Container(

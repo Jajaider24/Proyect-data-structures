@@ -2,7 +2,7 @@ import flet as ft
 from flet import canvas
 
 # =========================
-# DATOS (los tuyos)
+# DATA (yours)
 # =========================
 AVL_NODES = [
     {'id': 400, 'label': '400 | h=5 | bf=-1', 'depth': 0},
@@ -48,7 +48,7 @@ MIN_CANVAS_WIDTH = 800
 MIN_CANVAS_HEIGHT = 600
 
 # =========================
-# CONSTRUIR ÁRBOL
+# BUILD A TREE
 # =========================
 def build_tree(edges):
     tree = {}
@@ -61,7 +61,7 @@ def build_tree(edges):
         tree.setdefault(parent, []).append(child)
         children.add(child)
 
-    # Encontrar raíz (el que nunca es hijo)
+    # Finding one's roots (the one who is never a child)
     root = None
     for node in tree:
         if node not in children:
@@ -72,7 +72,7 @@ def build_tree(edges):
 
 
 # =========================
-# LAYOUT PROFESIONAL (RECURSIVO)
+# PROFESSIONAL LAYOUT (RECURSIVE)
 # =========================
 def compute_tree_layout(tree, root, x=0, y=0, dx=80, level_height=100, pos=None):
     if pos is None:
@@ -80,12 +80,12 @@ def compute_tree_layout(tree, root, x=0, y=0, dx=80, level_height=100, pos=None)
 
     children = tree.get(root, [])
 
-    # Caso hoja
+    # Leaf case
     if not children:
         pos[root] = (x, y)
         return x + dx, pos
 
-    # Procesar hijos
+    # Prosecute children
     child_x = x
     child_positions = []
 
@@ -101,7 +101,7 @@ def compute_tree_layout(tree, root, x=0, y=0, dx=80, level_height=100, pos=None)
         )
         child_positions.append(pos[child][0])
 
-    # Centrar nodo padre respecto a sus hijos
+    # Center the parent node relative to its children
     min_x = min(child_positions)
     max_x = max(child_positions)
     parent_x = (min_x + max_x) / 2
@@ -112,14 +112,14 @@ def compute_tree_layout(tree, root, x=0, y=0, dx=80, level_height=100, pos=None)
 
 
 # =========================
-# API DE POSICIONES
+# POSITIONS API
 # =========================
 def compute_positions(nodes, edges):
     tree, root = build_tree(edges)
     if root is None:
         return {}
 
-    # Margen superior para que la raiz no quede recortada por el canvas.
+    # Leave a margin at the top so the root isn't cut off by the canvas.
     _, pos = compute_tree_layout(
         tree,
         root,
@@ -143,16 +143,16 @@ def compute_canvas_size(pos):
 
 
 # =========================
-# DIBUJAR ÁRBOL
+# DRAW A TREE
 # =========================
 def draw_tree(nodes, edges, pos):
     shapes = []
 
-    # Map rápido de nodos
+    # Quick node map
     node_map = {n['id']: n for n in nodes}
 
     # ---------------------
-    # DIBUJAR ARISTAS
+    # DRAW EDGES
     # ---------------------
     for edge in edges:
         x1, y1 = pos[edge['from']]
@@ -167,7 +167,7 @@ def draw_tree(nodes, edges, pos):
         )
 
     # ---------------------
-    # DIBUJAR NODOS
+    # DRAW NODES
     # ---------------------
     for node_id, (x, y) in pos.items():
         node = node_map[node_id]
@@ -218,6 +218,6 @@ def draw_test(page):
 
     return ft.View(
         route="/drawpanel",
-        padding=0, # Elimina bordes externos de la ventana
+        padding=0, # Remove the outer borders of the window
         controls=[ft.Text("AVL Tree"),
         scrollable_canvas])

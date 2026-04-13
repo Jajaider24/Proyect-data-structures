@@ -13,7 +13,7 @@ MIN_CANVAS_WIDTH = 800
 MIN_CANVAS_HEIGHT = 600
 
 # =========================
-# CONSTRUIR ÁRBOL
+# BUILD TREE
 # =========================
 def build_tree(edges):
     tree = {}
@@ -26,7 +26,7 @@ def build_tree(edges):
         tree.setdefault(parent, []).append(child)
         children.add(child)
 
-    # Encontrar raíz (el que nunca es hijo)
+    # Finding one's roots (the one who is never a child)
     root = None
     for node in tree:
         if node not in children:
@@ -37,7 +37,7 @@ def build_tree(edges):
 
 
 # =========================
-# LAYOUT PROFESIONAL (RECURSIVO)
+# PROFESSIONAL LAYOUT (RECURSIVE)
 # =========================
 def compute_tree_layout(tree, root, x=0, y=0, dx=80, level_height=100, pos=None):
     if pos is None:
@@ -45,12 +45,12 @@ def compute_tree_layout(tree, root, x=0, y=0, dx=80, level_height=100, pos=None)
 
     children = tree.get(root, [])
 
-    # Caso hoja
+    # Case leaf
     if not children:
         pos[root] = (x, y)
         return x + dx, pos
 
-    # Procesar hijos
+    # Process children
     child_x = x
     child_positions = []
 
@@ -66,7 +66,7 @@ def compute_tree_layout(tree, root, x=0, y=0, dx=80, level_height=100, pos=None)
         )
         child_positions.append(pos[child][0])
 
-    # Centrar nodo padre respecto a sus hijos
+    # Center the parent node relative to its children
     min_x = min(child_positions)
     max_x = max(child_positions)
     parent_x = (min_x + max_x) / 2
@@ -77,14 +77,14 @@ def compute_tree_layout(tree, root, x=0, y=0, dx=80, level_height=100, pos=None)
 
 
 # =========================
-# API DE POSICIONES
+# POSITIONS API
 # =========================
 def compute_positions(nodes, edges):
     tree, root = build_tree(edges)
     if root is None:
         return {}
 
-    # Margen superior para que la raiz no quede recortada por el canvas.
+    # Leave a margin at the top so that the root isn't cut off by the canvas.
     _, pos = compute_tree_layout(
         tree,
         root,
@@ -108,16 +108,16 @@ def compute_canvas_size(pos):
 
 
 # =========================
-# DIBUJAR ÁRBOL
+# DRAW TREE
 # =========================
 def draw_tree(nodes, edges, pos):
     shapes = []
 
-    # Map rápido de nodos
+    # Create a mapping from node IDs to node data for easy access when drawing.
     node_map = {n['id']: n for n in nodes}
 
     # ---------------------
-    # DIBUJAR ARISTAS
+    # DRAW EDGES
     # ---------------------
     for edge in edges:
         x1, y1 = pos[edge['from']]
@@ -132,7 +132,7 @@ def draw_tree(nodes, edges, pos):
         )
 
     # ---------------------
-    # DIBUJAR NODOS
+    # DRAW NODES
     # ---------------------
     for node_id, (x, y) in pos.items():
         node = node_map[node_id]
@@ -256,16 +256,16 @@ def PanelConcurrency(page):
         alerta.value = False
 
 
-    # Contenedor Izquierdo (70%) y Derecho (30%)
+    # Left Container (70%) and Right Container (30%)
     return ft.View(
         route="/concurrencypanel",
-        padding=0, # Elimina bordes externos de la ventana
+        padding=0, # Remove the outer borders of the window
         controls=[
             ft.Row(
-                expand=True, # Permite que los contenedores usen expand=7 y expand=3
+                expand=True, # Allows containers to use `expand=7` and `expand=3`
                 spacing=0,
                 controls=[
-                    # PANEL IZQUIERDO (70%)
+                    # LEFT PANEL (70%)
                     ft.Container(
                         expand=7,
                         alignment = ft.Alignment.CENTER,
@@ -283,7 +283,7 @@ def PanelConcurrency(page):
                                                                                 weight=ft.FontWeight.BOLD)), 
                                                     scrollable_canvas]), 
                     ),
-                    # PANEL DERECHO (30%)
+                    # RIGHT PANEL (30%)
                     ft.Container(
                         expand=3,
                         padding=20,

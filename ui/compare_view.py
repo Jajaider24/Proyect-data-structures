@@ -15,6 +15,7 @@ MIN_CANVAS_HEIGHT = 520
 
 
 def build_tree(edges):
+	"""Build an adjacency map from the edge list and detect the root node."""
 	tree = {}
 	children = set()
 
@@ -26,6 +27,7 @@ def build_tree(edges):
 
 	root = None
 	for node in tree:
+		# The root is the node that appears as a parent but never as a child.
 		if node not in children:
 			root = node
 			break
@@ -34,11 +36,13 @@ def build_tree(edges):
 
 
 def compute_tree_layout(tree, root, x=0, y=0, dx=80, level_height=100, pos=None):
+	"""Assign screen coordinates to each node using a recursive tree layout."""
 	if pos is None:
 		pos = {}
 
 	children = tree.get(root, [])
 	if not children:
+		# Leaf nodes keep the current position and advance the horizontal cursor.
 		pos[root] = (x, y)
 		return x + dx, pos
 
@@ -46,6 +50,7 @@ def compute_tree_layout(tree, root, x=0, y=0, dx=80, level_height=100, pos=None)
 	child_positions = []
 
 	for child in children:
+		# Lay out each subtree from left to right and reuse the updated cursor.
 		child_x, pos = compute_tree_layout(
 			tree,
 			child,
@@ -57,12 +62,14 @@ def compute_tree_layout(tree, root, x=0, y=0, dx=80, level_height=100, pos=None)
 		)
 		child_positions.append(pos[child][0])
 
+	# Center the parent above its children so the drawing looks balanced.
 	parent_x = (min(child_positions) + max(child_positions)) / 2
 	pos[root] = (parent_x, y)
 	return child_x, pos
 
 
 def compute_positions(edges):
+	"""Convert the edge list into pixel positions for every visible node."""
 	tree, root = build_tree(edges)
 	if root is None:
 		return {}
@@ -79,6 +86,7 @@ def compute_positions(edges):
 
 
 def compute_canvas_size(pos):
+	"""Resize the canvas so the full tree fits without clipping."""
 	if not pos:
 		return MIN_CANVAS_WIDTH, MIN_CANVAS_HEIGHT
 
@@ -90,10 +98,12 @@ def compute_canvas_size(pos):
 
 
 def draw_tree(nodes, edges, pos):
+	"""Create the canvas shapes used to render nodes and edges."""
 	shapes = []
 	node_map = {node["id"]: node for node in nodes}
 
 	for edge in edges:
+		# Draw one line per edge before drawing the nodes on top of it.
 		x1, y1 = pos[edge["from"]]
 		x2, y2 = pos[edge["to"]]
 		shapes.append(
@@ -108,6 +118,7 @@ def draw_tree(nodes, edges, pos):
 
 	for node_id, (x, y) in pos.items():
 		node = node_map[node_id]
+		# Highlight critical nodes so they are easy to identify in the comparison.
 		node_color = ft.Colors.RED_ACCENT_700 if node.get("critical") else ft.Colors.BLACK
 
 		shapes.append(
@@ -132,6 +143,7 @@ def draw_tree(nodes, edges, pos):
 
 
 def build_compare_view(page):
+	"""Build the comparison page that renders AVL and BST side by side."""
 	page.title = "Comparacion AVL vs BST"
 
 	avl_title = ft.Text("AVL", size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK)
@@ -144,6 +156,7 @@ def build_compare_view(page):
 	bst_canvas = canvas.Canvas(width=MIN_CANVAS_WIDTH, height=MIN_CANVAS_HEIGHT, shapes=[])
 
 	def apply_canvas(canvas_control, nodes, edges):
+		# Recompute positions and canvas size every time the data changes.
 		positions = compute_positions(edges)
 		width, height = compute_canvas_size(positions)
 		canvas_control.shapes = draw_tree(nodes, edges, positions)
@@ -151,15 +164,18 @@ def build_compare_view(page):
 		canvas_control.height = height
 
 	def refresh_compare_view(e=None):
+		# Pull the latest tree data and metrics from the middleware layer.
 		avl_nodes, avl_edges, bst_nodes, bst_edges = middleware.render_information()
 		compare_data = middleware.compare_metrics() or {}
 
+		# Update both canvases with the current AVL and BST structures.
 		apply_canvas(avl_canvas, avl_nodes, avl_edges)
 		apply_canvas(bst_canvas, bst_nodes, bst_edges)
 
 		avl_metrics = compare_data.get("metrics", {}).get("avl", {})
 		bst_metrics = compare_data.get("metrics", {}).get("bst", {})
 
+		# Summaries are kept short so the user can compare both trees at a glance.
 		avl_summary.value = (
 			f"Raiz: {avl_metrics.get('root')} | Altura: {avl_metrics.get('height')} | Hojas: {avl_metrics.get('leaf_count')}"
 		)
@@ -170,6 +186,7 @@ def build_compare_view(page):
 		page.update()
 
 	async def open_menu(e):
+		# Navigate back to the main route used by the app.
 		await page.push_route("/")
 
 	refresh_compare_view()
