@@ -104,6 +104,9 @@ class SkyBalanceApiClient:
 
     def undo(self) -> dict[str, Any]:
         return self._request("POST", "/trees/undo")
+    
+    def redo(self) -> dict[str, Any]:
+        return self._request("POST", "/trees/redo")
 
     # ---------------------------- Health ----------------------------
     def health(self) -> dict[str, Any]:

@@ -272,6 +272,14 @@ def PanelAVL(page):
         clean_text()
         refresh_tree()
 
+    def redo_action(e=None):
+        result = middleware.redo_last_action()
+        if result is None:
+            return
+        codigo.options = flights_code_capture()
+        clean_text()
+        refresh_tree()
+
     def get_version_options():
         versions_payload = middleware.list_versions()
         if not versions_payload:
@@ -517,6 +525,7 @@ def PanelAVL(page):
                                 ft.Button("Guardar Árbol", width=button_width, height=button_height, style=button_style, on_click=lambda e: page.show_dialog(save_modal)),
                                 ft.Button("Eliminación Inteligente", width=button_width, height=button_height, style=button_style, on_click=apply_intelligent_delete),
                                 ft.Button("Retroceso", width=button_width, height=button_height, style=button_style, on_click=undo_action),
+                                ft.Button("Redo", width=button_width, height=button_height, style=button_style, on_click=redo_action),
                                 ft.Button("Restaurar Versión", width=button_width, height=button_height, style=button_style, on_click=open_restore_modal),
                                 ft.Button("Metricas", width=button_width, height=button_height, style=button_style, on_click=show_metrics),
                                 ft.TextButton("Volver", style = ft.ButtonStyle(ft.Colors.BLACK), on_click=open_menu)

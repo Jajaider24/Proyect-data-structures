@@ -197,3 +197,11 @@ def export_topology():
         skybalance.export_topology_file()
     except Exception as e:
         print(e)
+
+def redo_last_action():
+    try:
+        return skybalance.redo()
+    except ApiBridgeError as e:
+        print(f"Error HTTP {e.status_code}: {e.detail}")
+        print("Payload error:", e.payload)
+        return None
