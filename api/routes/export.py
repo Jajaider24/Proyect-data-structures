@@ -77,12 +77,33 @@ def undo_last_action() -> dict[str, object]:
     if snapshot is None:
         raise HTTPException(status_code=404, detail="No hay acciones para deshacer")
 
+    state.undo_manager.push_redo_snapshot(state.avl_tree, action=snapshot["action"])
+
     result = load_trees_from_payload(snapshot["payload"])
     state.avl_tree = result["avl"]
     state.bst_tree = result["bst"]
 
     return {
         "message": "Estado restaurado desde historial.",
+        "restored_action": snapshot["action"],
+        "node_count": state.avl_tree.size(),
+    }
+
+
+@router.post("/redo")
+def redo_last_action() -> dict[str, object]:
+    snapshot = state.undo_manager.pop_redo_snapshot()
+    if snapshot is None:
+        raise HTTPException(status_code=404, detail="No hay acciones para rehacer")
+
+    state.undo_manager.push_snapshot(state.avl_tree, action=snapshot["action"], clear_redo=False)
+
+    result = load_trees_from_payload(snapshot["payload"])
+    state.avl_tree = result["avl"]
+    state.bst_tree = result["bst"]
+
+    return {
+        "message": "Estado restaurado desde rehacer.",
         "restored_action": snapshot["action"],
         "node_count": state.avl_tree.size(),
     }

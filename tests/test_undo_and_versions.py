@@ -1,7 +1,7 @@
 import unittest
 
 from api import state
-from api.routes.export import undo_last_action
+from api.routes.export import redo_last_action, undo_last_action
 from api.routes.flights import set_critical_depth_limit
 from api.routes.versions import restore_version, save_version
 from api.schemas import CriticalDepthPayload, VersionPayload
@@ -57,6 +57,24 @@ class TestUndoAndVersions(unittest.TestCase):
         self.assertIsNotNone(restored_node)
         self.assertTrue(restored_node.flight.is_critical)
         self.assertEqual(restored_node.flight.final_price, 125.0)
+
+    def test_redo_restores_state_after_undo(self) -> None:
+        state.avl_tree.insert(make_flight(50))
+        state.bst_tree.insert(make_flight(50))
+        state.undo_manager.push_snapshot(state.avl_tree, action="before_insert")
+
+        state.avl_tree.insert(make_flight(70))
+        state.bst_tree.insert(make_flight(70))
+        self.assertEqual(state.avl_tree.size(), 2)
+
+        undo_result = undo_last_action()
+        self.assertEqual(undo_result["restored_action"], "before_insert")
+        self.assertEqual(state.avl_tree.size(), 1)
+
+        redo_result = redo_last_action()
+        self.assertEqual(redo_result["restored_action"], "before_insert")
+        self.assertEqual(state.avl_tree.size(), 2)
+        self.assertIsNotNone(state.avl_tree.search(70))
 
     def test_restore_named_version(self) -> None:
         state.avl_tree.insert(make_flight(50))
